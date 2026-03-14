@@ -1,9 +1,9 @@
 package internalapi
 
 type WazeroOnly interface {
-	wazeroOnly()
+	gowasmOnly()
 }
 
 type WazeroOnlyType struct{}
 
-func (WazeroOnlyType) wazeroOnly() {}
+func (WazeroOnlyType) gowasmOnly() {}

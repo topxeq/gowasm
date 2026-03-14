@@ -1,6 +1,6 @@
-# wazero.io
+# gowasm.io
 
-This directory holds the wazero site's source code. To visit the site, click [here](https://wazero.io/)
+This directory holds the gowasm site's source code. To visit the site, click [here](https://gowasm.io/)
 
 The website is built using [Hugo](https://gohugo.io/), as static website
 generator, and [Hello Friend](https://github.com/panr/hugo-theme-hello-friend) theme.

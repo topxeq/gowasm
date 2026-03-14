@@ -10,7 +10,7 @@ $ go run add.go 7 9
 
 ### Compilation
 
-wazero is a WebAssembly runtime, embedded in your host application. To run
+gowasm is a WebAssembly runtime, embedded in your host application. To run
 WebAssembly functions, you need access to a WebAssembly Binary (Wasm),
 typically a `%.wasm` file.
 
@@ -31,5 +31,5 @@ the minimal command to build a `%.wasm` binary.
   need [imports](../../imports) to implement features such as console output.
   TinyGo's `wasi` target, requires [WASI][2] imports.
 
-[1]: https://wazero.io/languages/tinygo
-[2]: https://wazero.io/specs/#wasi
+[1]: https://gowasm.io/languages/tinygo
+[2]: https://gowasm.io/specs/#wasi

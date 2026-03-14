@@ -14,14 +14,14 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/tetratelabs/wazero/api"
-	"github.com/tetratelabs/wazero/experimental/logging"
-	"github.com/tetratelabs/wazero/imports/wasi_snapshot_preview1"
-	"github.com/tetratelabs/wazero/internal/internalapi"
-	"github.com/tetratelabs/wazero/internal/platform"
-	"github.com/tetratelabs/wazero/internal/testing/require"
-	"github.com/tetratelabs/wazero/internal/version"
-	"github.com/tetratelabs/wazero/sys"
+	"github.com/topxeq/gowasm/api"
+	"github.com/topxeq/gowasm/experimental/logging"
+	"github.com/topxeq/gowasm/imports/wasi_snapshot_preview1"
+	"github.com/topxeq/gowasm/internal/internalapi"
+	"github.com/topxeq/gowasm/internal/platform"
+	"github.com/topxeq/gowasm/internal/testing/require"
+	"github.com/topxeq/gowasm/internal/version"
+	"github.com/topxeq/gowasm/sys"
 )
 
 //go:embed testdata/infinite_loop.wasm
@@ -71,7 +71,7 @@ func TestCompile(t *testing.T) {
 
 	tests := []struct {
 		name       string
-		wazeroOpts []string
+		gowasmOpts []string
 		test       func(t *testing.T)
 	}{
 		{
@@ -79,7 +79,7 @@ func TestCompile(t *testing.T) {
 		},
 		{
 			name:       "cachedir existing absolute",
-			wazeroOpts: []string{"--cachedir=" + existingDir1},
+			gowasmOpts: []string{"--cachedir=" + existingDir1},
 			test: func(t *testing.T) {
 				entries, err := os.ReadDir(existingDir1)
 				require.NoError(t, err)
@@ -88,7 +88,7 @@ func TestCompile(t *testing.T) {
 		},
 		{
 			name:       "cachedir existing relative",
-			wazeroOpts: []string{"--cachedir=existing2"},
+			gowasmOpts: []string{"--cachedir=existing2"},
 			test: func(t *testing.T) {
 				entries, err := os.ReadDir(existingDir2)
 				require.NoError(t, err)
@@ -97,7 +97,7 @@ func TestCompile(t *testing.T) {
 		},
 		{
 			name:       "cachedir new absolute",
-			wazeroOpts: []string{"--cachedir=" + path.Join(tmpDir, "new1")},
+			gowasmOpts: []string{"--cachedir=" + path.Join(tmpDir, "new1")},
 			test: func(t *testing.T) {
 				entries, err := os.ReadDir("new1")
 				require.NoError(t, err)
@@ -106,7 +106,7 @@ func TestCompile(t *testing.T) {
 		},
 		{
 			name:       "cachedir new relative",
-			wazeroOpts: []string{"--cachedir=new2"},
+			gowasmOpts: []string{"--cachedir=new2"},
 			test: func(t *testing.T) {
 				entries, err := os.ReadDir("new2")
 				require.NoError(t, err)
@@ -115,18 +115,18 @@ func TestCompile(t *testing.T) {
 		},
 		{
 			name:       "workers equal max procs",
-			wazeroOpts: []string{fmt.Sprintf("--workers=%d", runtime.GOMAXPROCS(0))},
+			gowasmOpts: []string{fmt.Sprintf("--workers=%d", runtime.GOMAXPROCS(0))},
 		},
 		{
 			name:       "enable cpu profiling",
-			wazeroOpts: []string{"-cpuprofile=" + cpuProfile},
+			gowasmOpts: []string{"-cpuprofile=" + cpuProfile},
 			test: func(t *testing.T) {
 				require.NoError(t, exist(cpuProfile))
 			},
 		},
 		{
 			name:       "enable memory profiling",
-			wazeroOpts: []string{"-memprofile=" + memProfile},
+			gowasmOpts: []string{"-memprofile=" + memProfile},
 			test: func(t *testing.T) {
 				require.NoError(t, exist(memProfile))
 			},
@@ -136,7 +136,7 @@ func TestCompile(t *testing.T) {
 	for _, tc := range tests {
 		tt := tc
 		t.Run(tt.name, func(t *testing.T) {
-			args := append([]string{"compile"}, tt.wazeroOpts...)
+			args := append([]string{"compile"}, tt.gowasmOpts...)
 			args = append(args, wasmPath)
 			exitCode, stdout, stderr := runMain(t, "", args)
 			require.Zero(t, stderr)
@@ -218,7 +218,7 @@ func TestRun(t *testing.T) {
 	// Clear the environment first, so we can make strict assertions.
 	os.Clearenv()
 	os.Setenv("ANIMAL", "kitten")
-	os.Setenv("INHERITED", "wazero")
+	os.Setenv("INHERITED", "gowasm")
 
 	// We can't rely on the mtime from git because in CI, only the last commit
 	// is checked out. Instead, grab the effective mtime.
@@ -238,7 +238,7 @@ func TestRun(t *testing.T) {
 
 	type test struct {
 		name             string
-		wazeroOpts       []string
+		gowasmOpts       []string
 		workdir          string
 		wasm             []byte
 		wasmArgs         []string
@@ -266,50 +266,50 @@ func TestRun(t *testing.T) {
 		{
 			name:           "env",
 			wasm:           wasmWasiEnv,
-			wazeroOpts:     []string{"--env=ANIMAL=bear", "--env=FOOD=sushi"},
+			gowasmOpts:     []string{"--env=ANIMAL=bear", "--env=FOOD=sushi"},
 			expectedStdout: "ANIMAL=bear\x00FOOD=sushi\x00",
 		},
 		{
 			name:           "env-inherit",
 			wasm:           wasmWasiEnv,
-			wazeroOpts:     []string{"-env-inherit"},
-			expectedStdout: "ANIMAL=kitten\x00INHERITED=wazero\u0000",
+			gowasmOpts:     []string{"-env-inherit"},
+			expectedStdout: "ANIMAL=kitten\x00INHERITED=gowasm\u0000",
 		},
 		{
 			name:           "env-inherit with env",
 			wasm:           wasmWasiEnv,
-			wazeroOpts:     []string{"-env-inherit", "--env=ANIMAL=bear"},
-			expectedStdout: "ANIMAL=bear\x00INHERITED=wazero\u0000", // not ANIMAL=kitten
+			gowasmOpts:     []string{"-env-inherit", "--env=ANIMAL=bear"},
+			expectedStdout: "ANIMAL=bear\x00INHERITED=gowasm\u0000", // not ANIMAL=kitten
 		},
 		{
 			name:           "interpreter",
 			wasm:           wasmWasiArg,
-			wazeroOpts:     []string{"--interpreter"}, // just test it works
+			gowasmOpts:     []string{"--interpreter"}, // just test it works
 			expectedStdout: "test.wasm\x00",
 		},
 		{
 			name:           "wasi",
 			wasm:           wasmWasiFd,
-			wazeroOpts:     []string{fmt.Sprintf("--mount=%s:/", bearDir)},
+			gowasmOpts:     []string{fmt.Sprintf("--mount=%s:/", bearDir)},
 			expectedStdout: "pooh\n",
 		},
 		{
 			name:           "wasi readonly",
 			wasm:           wasmWasiFd,
-			wazeroOpts:     []string{fmt.Sprintf("--mount=%s:/:ro", bearDir)},
+			gowasmOpts:     []string{fmt.Sprintf("--mount=%s:/:ro", bearDir)},
 			expectedStdout: "pooh\n",
 		},
 		{
 			name:           "wasi non root",
 			wasm:           wasmCatTinygo,
-			wazeroOpts:     []string{fmt.Sprintf("--mount=%s:/animals:ro", bearDir)},
+			gowasmOpts:     []string{fmt.Sprintf("--mount=%s:/animals:ro", bearDir)},
 			wasmArgs:       []string{"/animals/bear.txt"},
 			expectedStdout: "pooh\n",
 		},
 		{
 			name:       "wasi hostlogging=all",
 			wasm:       wasmWasiRandomGet,
-			wazeroOpts: []string{"--hostlogging=all"},
+			gowasmOpts: []string{"--hostlogging=all"},
 			expectedStderr: `--> .$1()
 	==> wasi_snapshot_preview1.random_get(buf=0,buf_len=1000)
 	<== errno=ESUCCESS
@@ -319,7 +319,7 @@ func TestRun(t *testing.T) {
 		{
 			name:       "wasi hostlogging=proc",
 			wasm:       wasmCatTinygo,
-			wazeroOpts: []string{"--hostlogging=proc", fmt.Sprintf("--mount=%s:/animals:ro", bearDir)},
+			gowasmOpts: []string{"--hostlogging=proc", fmt.Sprintf("--mount=%s:/animals:ro", bearDir)},
 			wasmArgs:   []string{"/animals/not-bear.txt"},
 			expectedStderr: `==> wasi_snapshot_preview1.proc_exit(rval=1)
 `, // ^^ proc_exit panics, which short-circuits the logger. Hence, no "<==".
@@ -328,7 +328,7 @@ func TestRun(t *testing.T) {
 		{
 			name:       "wasi hostlogging=filesystem",
 			wasm:       wasmCatTinygo,
-			wazeroOpts: []string{"--hostlogging=filesystem", fmt.Sprintf("--mount=%s:/animals:ro", bearDir)},
+			gowasmOpts: []string{"--hostlogging=filesystem", fmt.Sprintf("--mount=%s:/animals:ro", bearDir)},
 			wasmArgs:   []string{"/animals/bear.txt"},
 			expectedStderr: fmt.Sprintf(`==> wasi_snapshot_preview1.fd_prestat_get(fd=3)
 <== (prestat={pr_name_len=8},errno=ESUCCESS)
@@ -354,14 +354,14 @@ func TestRun(t *testing.T) {
 		{
 			name:       "wasi hostlogging=random",
 			wasm:       wasmWasiRandomGet,
-			wazeroOpts: []string{"--hostlogging=random"},
+			gowasmOpts: []string{"--hostlogging=random"},
 			expectedStderr: `==> wasi_snapshot_preview1.random_get(buf=0,buf_len=1000)
 <== errno=ESUCCESS
 `,
 		},
 		{
 			name:       "cachedir existing absolute",
-			wazeroOpts: []string{"--cachedir=" + existingDir1},
+			gowasmOpts: []string{"--cachedir=" + existingDir1},
 			wasm:       wasmWasiArg,
 			wasmArgs:   []string{"hello world"},
 			// Executable name is first arg so is printed.
@@ -374,7 +374,7 @@ func TestRun(t *testing.T) {
 		},
 		{
 			name:       "cachedir existing relative",
-			wazeroOpts: []string{"--cachedir=existing2"},
+			gowasmOpts: []string{"--cachedir=existing2"},
 			wasm:       wasmWasiArg,
 			wasmArgs:   []string{"hello world"},
 			// Executable name is first arg so is printed.
@@ -387,7 +387,7 @@ func TestRun(t *testing.T) {
 		},
 		{
 			name:       "cachedir new absolute",
-			wazeroOpts: []string{"--cachedir=" + path.Join(tmpDir, "new1")},
+			gowasmOpts: []string{"--cachedir=" + path.Join(tmpDir, "new1")},
 			wasm:       wasmWasiArg,
 			wasmArgs:   []string{"hello world"},
 			// Executable name is first arg so is printed.
@@ -400,7 +400,7 @@ func TestRun(t *testing.T) {
 		},
 		{
 			name:       "cachedir new relative",
-			wazeroOpts: []string{"--cachedir=new2"},
+			gowasmOpts: []string{"--cachedir=new2"},
 			wasm:       wasmWasiArg,
 			wasmArgs:   []string{"hello world"},
 			// Executable name is first arg so is printed.
@@ -413,7 +413,7 @@ func TestRun(t *testing.T) {
 		},
 		{
 			name:             "timeout: a binary that exceeds the deadline should print an error",
-			wazeroOpts:       []string{"-timeout=1ms"},
+			gowasmOpts:       []string{"-timeout=1ms"},
 			wasm:             wasmInfiniteLoop,
 			expectedStderr:   "error: module closed with context deadline exceeded (timeout 1ms)\n",
 			expectedExitCode: int(sys.ExitCodeDeadlineExceeded),
@@ -423,7 +423,7 @@ func TestRun(t *testing.T) {
 		},
 		{
 			name:       "timeout: a binary that ends before the deadline should not print a timeout error",
-			wazeroOpts: []string{"-timeout=10s"},
+			gowasmOpts: []string{"-timeout=10s"},
 			wasm:       wasmWasiRandomGet,
 			test: func(t *testing.T) {
 				require.NoError(t, err)
@@ -439,7 +439,7 @@ func TestRun(t *testing.T) {
 		},
 		{
 			name:       "enable cpu profiling",
-			wazeroOpts: []string{"-cpuprofile=" + cpuProfile},
+			gowasmOpts: []string{"-cpuprofile=" + cpuProfile},
 			wasm:       wasmWasiRandomGet,
 			test: func(t *testing.T) {
 				require.NoError(t, exist(cpuProfile))
@@ -447,7 +447,7 @@ func TestRun(t *testing.T) {
 		},
 		{
 			name:       "enable memory profiling",
-			wazeroOpts: []string{"-memprofile=" + memProfile},
+			gowasmOpts: []string{"-memprofile=" + memProfile},
 			wasm:       wasmWasiRandomGet,
 			test: func(t *testing.T) {
 				require.NoError(t, exist(memProfile))
@@ -467,7 +467,7 @@ func TestRun(t *testing.T) {
 			wasmPath := filepath.Join(tmpDir, "test.wasm")
 			require.NoError(t, os.WriteFile(wasmPath, tc.wasm, 0o700))
 
-			args := append([]string{"run"}, tc.wazeroOpts...)
+			args := append([]string{"run"}, tc.gowasmOpts...)
 			args = append(args, wasmPath)
 			args = append(args, tc.wasmArgs...)
 			exitCode, stdout, stderr := runMain(t, tc.workdir, args)
@@ -680,15 +680,15 @@ func TestHelp(t *testing.T) {
 	exitCode, _, stderr := runMain(t, "", []string{"-h"})
 	require.Equal(t, 0, exitCode)
 	fmt.Println(stderr)
-	require.Equal(t, `wazero CLI
+	require.Equal(t, `gowasm CLI
 
 Usage:
-  wazero <command>
+  gowasm <command>
 
 Commands:
   compile	Pre-compiles a WebAssembly binary
   run		Runs a WebAssembly binary
-  version	Displays the version of wazero CLI
+  version	Displays the version of gowasm CLI
 `, stderr)
 }
 
@@ -710,7 +710,7 @@ func runMain(t *testing.T, workdir string, args []string) (int, string, string) 
 	t.Cleanup(func() {
 		os.Args = oldArgs
 	})
-	os.Args = append([]string{"wazero"}, args...)
+	os.Args = append([]string{"gowasm"}, args...)
 	flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ContinueOnError)
 
 	stdout := new(bytes.Buffer)

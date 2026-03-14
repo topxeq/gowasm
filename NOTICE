@@ -1,2 +1,4 @@
-wazero
+gowasm
 Copyright 2020-2023 wazero authors
+
+This is a fork of the original wazero project, modified and rebranded as gowasm.

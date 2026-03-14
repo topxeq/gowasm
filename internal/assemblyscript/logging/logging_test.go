@@ -3,11 +3,11 @@ package logging
 import (
 	"testing"
 
-	"github.com/tetratelabs/wazero/api"
-	. "github.com/tetratelabs/wazero/internal/assemblyscript"
-	"github.com/tetratelabs/wazero/internal/logging"
-	"github.com/tetratelabs/wazero/internal/testing/require"
-	"github.com/tetratelabs/wazero/internal/wasm"
+	"github.com/topxeq/gowasm/api"
+	. "github.com/topxeq/gowasm/internal/assemblyscript"
+	"github.com/topxeq/gowasm/internal/logging"
+	"github.com/topxeq/gowasm/internal/testing/require"
+	"github.com/topxeq/gowasm/internal/wasm"
 )
 
 type testFunctionDefinition struct {

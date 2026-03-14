@@ -10,36 +10,36 @@ Runtimes execute WebAssembly Modules (Wasm), which are most often binaries with 
 Most WebAssembly modules import functions from the host, to perform tasks that are otherwise disallowed by their sandbox.
 The most commonly imported functions are called WASI, which allow access to system resources such as the console or files.
 
-wazero is a WebAssembly runtime, written completely in Go. It has no platform dependencies, so can be used in any environment supported by Go.
+gowasm is a WebAssembly runtime, written completely in Go. It has no platform dependencies, so can be used in any environment supported by Go.
 
 ## API
 
-Being a Go library, which we document wazero's API via [godoc][godoc].
+Being a Go library, which we document gowasm's API via [godoc][godoc].
 
 ## Terminology
 
 Wazero has consistent terminology used inside the codebase which may be new to you, or different than another WebAssembly runtime.
 This section covers the most commonly used vocabulary. Terms rarely used may also be defined inline in individual sections.
 
-* Host - Host is a WebAssembly concept that refers to the process that embeds a WebAssembly runtime. In wazero, the host is a program written in Go.
-* Binary - Binary is a WebAssembly module, compiled from source such as C, Rust or Tinygo. This is also called Wasm or a guest, and usually is a file with a `.wasm` extension. This is the code wazero runs.
+* Host - Host is a WebAssembly concept that refers to the process that embeds a WebAssembly runtime. In gowasm, the host is a program written in Go.
+* Binary - Binary is a WebAssembly module, compiled from source such as C, Rust or Tinygo. This is also called Wasm or a guest, and usually is a file with a `.wasm` extension. This is the code gowasm runs.
 * Sandbox - Sandbox is a term that describes isolation. For example, a WebAssembly module, defined below, is isolated from the host memory and memory of other modules. This means it cannot corrupt the calling process or cause it to crash.
 * [Module][Module] - Module an instance of a Binary, which usually exports functions that can be invoked by the embedder. It can also import functions from the host to perform tasks not defined in the WebAssembly Core Specification, such as I/O.
-* Host Module - Host Module is a wazero concept that represents a collection of exported functions that give functionality not provided in the WebAssembly Core Specification, such as I/O. These exported functions are defined as normal Go functions (including closures). For example, WASI is often used to describe a host module named "wasi_snapshot_preview1".
+* Host Module - Host Module is a gowasm concept that represents a collection of exported functions that give functionality not provided in the WebAssembly Core Specification, such as I/O. These exported functions are defined as normal Go functions (including closures). For example, WASI is often used to describe a host module named "wasi_snapshot_preview1".
 * Exported Function - An Exported Function is a function addressable by name. Guests can import functions from a host module, and export them so that Go applications can call them.
-* [Runtime][Runtime] - Runtime is the top-level component in wazero that compiles binaries, configures host functions, and runs guests in sandboxes. How it behaves is determined by its engine: interpreter or compiler.
-* Compile - In wazero, compile means prepares a binary, or a host module to be instantiated. This is implemented differently based on whether a runtime is a compiler or an interpreter.
+* [Runtime][Runtime] - Runtime is the top-level component in gowasm that compiles binaries, configures host functions, and runs guests in sandboxes. How it behaves is determined by its engine: interpreter or compiler.
+* Compile - In gowasm, compile means prepares a binary, or a host module to be instantiated. This is implemented differently based on whether a runtime is a compiler or an interpreter.
 * [Compiled Module][CompiledModule] - a prepared and ready to be instantiated object created vi Compilation phrase. This can be used in instantiation multiple times to create multiple and isolated sandbox from a single Wasm binary.
-* Instantiate - In wazero, instantiate means allocating a [Compiled Module][CompiledModule] and associating it with a unique name, resulting in a [Module][Module]. This includes running any start functions. The result of instantiation is a module whose exported functions can be called.
+* Instantiate - In gowasm, instantiate means allocating a [Compiled Module][CompiledModule] and associating it with a unique name, resulting in a [Module][Module]. This includes running any start functions. The result of instantiation is a module whose exported functions can be called.
 
 ## Architecture
 
-This section covers the library architecture wazero uses to implements the WebAssembly Core specification and WASI.
-Features unique to Go or wazero are discussed where architecture affecting.
+This section covers the library architecture gowasm uses to implements the WebAssembly Core specification and WASI.
+Features unique to Go or gowasm are discussed where architecture affecting.
 
 ### Components
 
-At a high level, wazero exposes a [Runtime][Runtime], which can compile the binary into [Compiled Module][CompiledModule],
+At a high level, gowasm exposes a [Runtime][Runtime], which can compile the binary into [Compiled Module][CompiledModule],
 and instantiate it as a sandboxed [Module][Module].
 These sandboxed modules are isolated from each other (modulo imports) and the embedding Go program. In a sandbox,
 there are 4 types of objects: memory, global, table, and function. Functions might be exported by name, and they can be executed by
@@ -86,9 +86,9 @@ this WebAssembly module requires importing the exported function named `foo` fro
 An imported functions can be called by the importing modules, and this is how a Wasm module interacts with the outside of
 its own sandbox.
 
-In wazero, the imported modules can be Host Modules which consist of Go functions. Therefore,
+In gowasm, the imported modules can be Host Modules which consist of Go functions. Therefore,
 the importing modules can invoke Go functions defined by the embedding Go programs.
-The notable example of this imported host module is wazero's [`wasi_snapshot_preview1`][wasi] module which provides
+The notable example of this imported host module is gowasm's [`wasi_snapshot_preview1`][wasi] module which provides
 the system calls to wasm modules because the Wasm specification itself doesn't define system calls. This way, Wasm modules
 are granted the ability to do, for example, file system access, etc.
 
@@ -129,21 +129,21 @@ and name is `add`. This case, the import target module instance and function alr
 the imported function in its sandbox. Finally, the importing module exports the function named `use_add` which in turns calls the imported function,
 therefore, we can freely access the imported Go function from the importing Wasm module.
 
-Here's [the working example in wazero repository][age-calculator], so please check it out for more details.
+Here's [the working example in gowasm repository][age-calculator], so please check it out for more details.
 
 
 ### Engine
 
-There's a concept called "engine" in wazero's codebase. It is in charge of how wazero compiles the raw Wasm binary, transforms it into
+There's a concept called "engine" in gowasm's codebase. It is in charge of how gowasm compiles the raw Wasm binary, transforms it into
 intermediate data structure, caches the compiled information, and performs function calls of Wasm functions.
-Notably, the interpreter and compiler in wazero's [Runtime configuration][RuntimeConfig] refer to the type of engine tied to [Runtime][Runtime].
+Notably, the interpreter and compiler in gowasm's [Runtime configuration][RuntimeConfig] refer to the type of engine tied to [Runtime][Runtime].
 
 #### Compiler
 
-In wazero, a compiler is a runtime configured to compile modules to platform-specific machine code ahead of time (AOT)
+In gowasm, a compiler is a runtime configured to compile modules to platform-specific machine code ahead of time (AOT)
 during the creation of [CompiledModule][CompiledModule]. This means your WebAssembly functions execute
 natively at runtime of the embedding Go program. Compiler is faster than Interpreter, often by order of
-magnitude (10x) or more, and therefore enabled by default whenever available. You can read more about wazero's
+magnitude (10x) or more, and therefore enabled by default whenever available. You can read more about gowasm's
 [optimizing compiler in the detailed documentation]({{< relref "/how_the_optimizing_compiler_works" >}}).
 
 #### Interpreter
@@ -155,7 +155,7 @@ therefore interpreter can be used for any compilation target available for Go (s
 ## How do function calls work?
 
 WebAssembly runtimes let you call functions defined in wasm. How this works in
-wazero is different depending on your `RuntimeConfig`.
+gowasm is different depending on your `RuntimeConfig`.
 
 * `RuntimeConfigCompiler` compiles machine code from your wasm, and jumps to
   that when invoking a function.
@@ -166,18 +166,18 @@ How the compiler works precisely is a large topic. If you are interested in
 digging deeper, please look at [the dedicated documentation]({{< relref "/how_do_compiler_functions_work.md" >}})
 on this topic!
 
-## Rationales behind wazero
+## Rationales behind gowasm
 
-Please refer to [RATIONALE][rationale] for the notable rationales behind wazero's implementations. 
+Please refer to [RATIONALE][rationale] for the notable rationales behind gowasm's implementations. 
 An engine-specific [RATIONALE][rationale-engine] is also available for internal implementation details 
 of the interpreter and compiler engines.
 
-[Module]: https://pkg.go.dev/github.com/tetratelabs/wazero@v1.0.0-rc.1/api#Module
-[Runtime]: https://pkg.go.dev/github.com/tetratelabs/wazero#Runtime
-[RuntimeConfig]: https://pkg.go.dev/github.com/tetratelabs/wazero#RuntimeConfig
-[CompiledModule]: https://pkg.go.dev/github.com/tetratelabs/wazero#CompiledModule
-[godoc]: https://pkg.go.dev/github.com/tetratelabs/wazero
-[rationale]: https://github.com/tetratelabs/wazero/blob/main/RATIONALE.md
-[rationale-engine]: https://github.com/tetratelabs/wazero/blob/main/internal/engine/RATIONALE.md
-[wasi]: https://github.com/tetratelabs/wazero/tree/main/imports/wasi_snapshot_preview1/example
-[age-calculator]: https://github.com/tetratelabs/wazero/blob/v1.0.0-rc.1/examples/import-go/age-calculator.go
+[Module]: https://pkg.go.dev/github.com/tetratelabs/gowasm@v1.0.0-rc.1/api#Module
+[Runtime]: https://pkg.go.dev/github.com/tetratelabs/gowasm#Runtime
+[RuntimeConfig]: https://pkg.go.dev/github.com/tetratelabs/gowasm#RuntimeConfig
+[CompiledModule]: https://pkg.go.dev/github.com/tetratelabs/gowasm#CompiledModule
+[godoc]: https://pkg.go.dev/github.com/tetratelabs/gowasm
+[rationale]: https://github.com/tetratelabs/gowasm/blob/main/RATIONALE.md
+[rationale-engine]: https://github.com/tetratelabs/gowasm/blob/main/internal/engine/RATIONALE.md
+[wasi]: https://github.com/tetratelabs/gowasm/tree/main/imports/wasi_snapshot_preview1/example
+[age-calculator]: https://github.com/tetratelabs/gowasm/blob/v1.0.0-rc.1/examples/import-go/age-calculator.go

@@ -8,12 +8,12 @@ import (
 	"testing"
 	"time"
 
-	"github.com/tetratelabs/wazero/experimental/sys"
-	internalsys "github.com/tetratelabs/wazero/internal/sys"
-	"github.com/tetratelabs/wazero/internal/sysfs"
-	testfs "github.com/tetratelabs/wazero/internal/testing/fs"
-	"github.com/tetratelabs/wazero/internal/testing/hammer"
-	"github.com/tetratelabs/wazero/internal/testing/require"
+	"github.com/topxeq/gowasm/experimental/sys"
+	internalsys "github.com/topxeq/gowasm/internal/sys"
+	"github.com/topxeq/gowasm/internal/sysfs"
+	testfs "github.com/topxeq/gowasm/internal/testing/fs"
+	"github.com/topxeq/gowasm/internal/testing/hammer"
+	"github.com/topxeq/gowasm/internal/testing/require"
 )
 
 func TestModuleInstance_String(t *testing.T) {

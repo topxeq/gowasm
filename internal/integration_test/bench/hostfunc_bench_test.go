@@ -7,12 +7,12 @@ import (
 	"math"
 	"testing"
 
-	"github.com/tetratelabs/wazero"
-	"github.com/tetratelabs/wazero/api"
-	"github.com/tetratelabs/wazero/internal/platform"
-	"github.com/tetratelabs/wazero/internal/testing/binaryencoding"
-	"github.com/tetratelabs/wazero/internal/testing/require"
-	"github.com/tetratelabs/wazero/internal/wasm"
+	"github.com/topxeq/gowasm"
+	"github.com/topxeq/gowasm/api"
+	"github.com/topxeq/gowasm/internal/platform"
+	"github.com/topxeq/gowasm/internal/testing/binaryencoding"
+	"github.com/topxeq/gowasm/internal/testing/require"
+	"github.com/topxeq/gowasm/internal/wasm"
 )
 
 const (
@@ -132,7 +132,7 @@ func getCallEngine(m *wasm.ModuleInstance, name string) (ce api.Function) {
 
 func setupHostCallBench(requireNoError func(error)) *wasm.ModuleInstance {
 	ctx := context.Background()
-	r := wazero.NewRuntime(ctx)
+	r := gowasm.NewRuntime(ctx)
 
 	const i32, f32 = api.ValueTypeI32, api.ValueTypeF32
 	_, err := r.NewHostModuleBuilder("host").

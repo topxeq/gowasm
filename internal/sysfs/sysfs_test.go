@@ -10,9 +10,9 @@ import (
 	"sort"
 	"testing"
 
-	experimentalsys "github.com/tetratelabs/wazero/experimental/sys"
-	"github.com/tetratelabs/wazero/internal/testing/require"
-	"github.com/tetratelabs/wazero/sys"
+	experimentalsys "github.com/topxeq/gowasm/experimental/sys"
+	"github.com/topxeq/gowasm/internal/testing/require"
+	"github.com/topxeq/gowasm/sys"
 )
 
 func testOpen_O_RDWR(t *testing.T, tmpDir string, testFS experimentalsys.FS) {

@@ -3,9 +3,9 @@ package descriptor_test
 import (
 	"testing"
 
-	"github.com/tetratelabs/wazero/internal/descriptor"
-	"github.com/tetratelabs/wazero/internal/sys"
-	"github.com/tetratelabs/wazero/internal/testing/require"
+	"github.com/topxeq/gowasm/internal/descriptor"
+	"github.com/topxeq/gowasm/internal/sys"
+	"github.com/topxeq/gowasm/internal/testing/require"
 )
 
 func TestFileTable(t *testing.T) {

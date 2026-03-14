@@ -5,13 +5,13 @@ import (
 	_ "embed"
 	"testing"
 
-	"github.com/tetratelabs/wazero"
-	"github.com/tetratelabs/wazero/api"
-	"github.com/tetratelabs/wazero/experimental"
-	"github.com/tetratelabs/wazero/experimental/wazerotest"
-	"github.com/tetratelabs/wazero/internal/testing/binaryencoding"
-	"github.com/tetratelabs/wazero/internal/testing/require"
-	"github.com/tetratelabs/wazero/internal/wasm"
+	"github.com/topxeq/gowasm"
+	"github.com/topxeq/gowasm/api"
+	"github.com/topxeq/gowasm/experimental"
+	"github.com/topxeq/gowasm/experimental/wazerotest"
+	"github.com/topxeq/gowasm/internal/testing/binaryencoding"
+	"github.com/topxeq/gowasm/internal/testing/require"
+	"github.com/topxeq/gowasm/internal/wasm"
 )
 
 // compile-time check to ensure recorder implements FunctionListenerFactory
@@ -73,7 +73,7 @@ func TestFunctionListenerFactory(t *testing.T) {
 		},
 	})
 
-	r := wazero.NewRuntime(ctx)
+	r := gowasm.NewRuntime(ctx)
 	defer r.Close(ctx) // This closes everything this Runtime created.
 
 	_, err := r.NewHostModuleBuilder("host").NewFunctionBuilder().WithFunc(func() {}).Export("").Instantiate(ctx)
@@ -94,7 +94,7 @@ func TestFunctionListenerFactory(t *testing.T) {
 
 	// Ensures that FunctionListener is a compile-time option, so passing
 	// context.Background here is ok to use listeners at runtime.
-	m, err := r.InstantiateModule(context.Background(), compiled, wazero.NewModuleConfig())
+	m, err := r.InstantiateModule(context.Background(), compiled, gowasm.NewModuleConfig())
 	require.NoError(t, err)
 
 	fn1 := m.ExportedFunction("fn1")

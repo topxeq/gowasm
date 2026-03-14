@@ -8,16 +8,16 @@ import (
 	"math"
 	"testing"
 
-	"github.com/tetratelabs/wazero"
-	"github.com/tetratelabs/wazero/api"
-	"github.com/tetratelabs/wazero/experimental"
-	"github.com/tetratelabs/wazero/experimental/logging"
-	"github.com/tetratelabs/wazero/internal/engine/wazevo/testcases"
-	"github.com/tetratelabs/wazero/internal/leb128"
-	"github.com/tetratelabs/wazero/internal/testing/binaryencoding"
-	"github.com/tetratelabs/wazero/internal/testing/dwarftestdata"
-	"github.com/tetratelabs/wazero/internal/testing/require"
-	"github.com/tetratelabs/wazero/internal/wasm"
+	"github.com/topxeq/gowasm"
+	"github.com/topxeq/gowasm/api"
+	"github.com/topxeq/gowasm/experimental"
+	"github.com/topxeq/gowasm/experimental/logging"
+	"github.com/topxeq/gowasm/internal/engine/wazevo/testcases"
+	"github.com/topxeq/gowasm/internal/leb128"
+	"github.com/topxeq/gowasm/internal/testing/binaryencoding"
+	"github.com/topxeq/gowasm/internal/testing/dwarftestdata"
+	"github.com/topxeq/gowasm/internal/testing/require"
+	"github.com/topxeq/gowasm/internal/wasm"
 )
 
 const (
@@ -907,15 +907,15 @@ func TestE2E(t *testing.T) {
 					name = "with cache"
 				}
 				t.Run(name, func(t *testing.T) {
-					cache, err := wazero.NewCompilationCacheWithDir(tmp)
+					cache, err := gowasm.NewCompilationCacheWithDir(tmp)
 					require.NoError(t, err)
-					config := wazero.NewRuntimeConfig().WithCompilationCache(cache)
+					config := gowasm.NewRuntimeConfig().WithCompilationCache(cache)
 					if tc.features != 0 {
 						config = config.WithCoreFeatures(tc.features)
 					}
 
 					ctx := context.Background()
-					r := wazero.NewRuntimeWithConfig(ctx, config)
+					r := gowasm.NewRuntimeWithConfig(ctx, config)
 					defer func() {
 						require.NoError(t, r.Close(ctx))
 					}()
@@ -924,14 +924,14 @@ func TestE2E(t *testing.T) {
 						imported, err := r.CompileModule(ctx, binaryencoding.EncodeModule(tc.imported))
 						require.NoError(t, err)
 
-						_, err = r.InstantiateModule(ctx, imported, wazero.NewModuleConfig())
+						_, err = r.InstantiateModule(ctx, imported, gowasm.NewModuleConfig())
 						require.NoError(t, err)
 					}
 
 					compiled, err := r.CompileModule(ctx, binaryencoding.EncodeModule(tc.m))
 					require.NoError(t, err)
 
-					inst, err := r.InstantiateModule(ctx, compiled, wazero.NewModuleConfig())
+					inst, err := r.InstantiateModule(ctx, compiled, gowasm.NewModuleConfig())
 					require.NoError(t, err)
 
 					if tc.setupMemory != nil {
@@ -981,9 +981,9 @@ func TestE2E_host_functions(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			ctx := tc.ctx
 
-			config := wazero.NewRuntimeConfigCompiler()
+			config := gowasm.NewRuntimeConfigCompiler()
 
-			r := wazero.NewRuntimeWithConfig(ctx, config)
+			r := gowasm.NewRuntimeWithConfig(ctx, config)
 			defer func() {
 				require.NoError(t, r.Close(ctx))
 			}()
@@ -1036,7 +1036,7 @@ func TestE2E_host_functions(t *testing.T) {
 			compiled, err := r.CompileModule(ctx, binaryencoding.EncodeModule(m))
 			require.NoError(t, err)
 
-			inst, err := r.InstantiateModule(ctx, compiled, wazero.NewModuleConfig())
+			inst, err := r.InstantiateModule(ctx, compiled, gowasm.NewModuleConfig())
 			require.NoError(t, err)
 
 			expectedMod = inst
@@ -1063,10 +1063,10 @@ func TestE2E_host_functions(t *testing.T) {
 }
 
 func TestE2E_stores(t *testing.T) {
-	config := wazero.NewRuntimeConfigCompiler()
+	config := gowasm.NewRuntimeConfigCompiler()
 
 	ctx := context.Background()
-	r := wazero.NewRuntimeWithConfig(ctx, config)
+	r := gowasm.NewRuntimeWithConfig(ctx, config)
 	defer func() {
 		require.NoError(t, r.Close(ctx))
 	}()
@@ -1074,7 +1074,7 @@ func TestE2E_stores(t *testing.T) {
 	compiled, err := r.CompileModule(ctx, binaryencoding.EncodeModule(testcases.MemoryStores.Module))
 	require.NoError(t, err)
 
-	inst, err := r.InstantiateModule(ctx, compiled, wazero.NewModuleConfig())
+	inst, err := r.InstantiateModule(ctx, compiled, gowasm.NewModuleConfig())
 	require.NoError(t, err)
 
 	f := inst.ExportedFunction(testcases.ExportedFunctionName)
@@ -1150,10 +1150,10 @@ func TestE2E_reexported_memory(t *testing.T) {
 		CodeSection:       []wasm.Code{{Body: []byte{wasm.OpcodeI32Const, 10, wasm.OpcodeMemoryGrow, 0, wasm.OpcodeEnd}}},
 	}
 
-	config := wazero.NewRuntimeConfigCompiler()
+	config := gowasm.NewRuntimeConfigCompiler()
 
 	ctx := context.Background()
-	r := wazero.NewRuntimeWithConfig(ctx, config)
+	r := gowasm.NewRuntimeWithConfig(ctx, config)
 	defer func() {
 		require.NoError(t, r.Close(ctx))
 	}()
@@ -1199,10 +1199,10 @@ func TestStackUnwind_panic_in_host(t *testing.T) {
 		},
 	}
 
-	config := wazero.NewRuntimeConfigCompiler()
+	config := gowasm.NewRuntimeConfigCompiler()
 
 	ctx := context.Background()
-	r := wazero.NewRuntimeWithConfig(ctx, config)
+	r := gowasm.NewRuntimeWithConfig(ctx, config)
 	defer func() {
 		require.NoError(t, r.Close(ctx))
 	}()
@@ -1221,7 +1221,7 @@ func TestStackUnwind_panic_in_host(t *testing.T) {
 	defer module.Close(ctx)
 
 	_, err = module.ExportedFunction("main").Call(ctx)
-	exp := `panic in host function (recovered by wazero)
+	exp := `panic in host function (recovered by gowasm)
 wasm stack trace:
 	host.cause_unreachable()
 	.two()
@@ -1249,9 +1249,9 @@ func TestStackUnwind_unreachable(t *testing.T) {
 		},
 	}
 
-	config := wazero.NewRuntimeConfigCompiler()
+	config := gowasm.NewRuntimeConfigCompiler()
 	ctx := context.Background()
-	r := wazero.NewRuntimeWithConfig(ctx, config)
+	r := gowasm.NewRuntimeWithConfig(ctx, config)
 	defer func() {
 		require.NoError(t, r.Close(ctx))
 	}()
@@ -1271,10 +1271,10 @@ wasm stack trace:
 
 func TestListener_local(t *testing.T) {
 	var buf bytes.Buffer
-	config := wazero.NewRuntimeConfigCompiler()
+	config := gowasm.NewRuntimeConfigCompiler()
 	ctx := experimental.WithFunctionListenerFactory(context.Background(), logging.NewLoggingListenerFactory(&buf))
 
-	r := wazero.NewRuntimeWithConfig(ctx, config)
+	r := gowasm.NewRuntimeWithConfig(ctx, config)
 	defer func() {
 		require.NoError(t, r.Close(ctx))
 	}()
@@ -1282,7 +1282,7 @@ func TestListener_local(t *testing.T) {
 	compiled, err := r.CompileModule(ctx, binaryencoding.EncodeModule(testcases.CallIndirect.Module))
 	require.NoError(t, err)
 
-	inst, err := r.InstantiateModule(ctx, compiled, wazero.NewModuleConfig())
+	inst, err := r.InstantiateModule(ctx, compiled, gowasm.NewModuleConfig())
 	require.NoError(t, err)
 
 	res, err := inst.ExportedFunction(testcases.ExportedFunctionName).Call(ctx, 1)
@@ -1299,10 +1299,10 @@ func TestListener_local(t *testing.T) {
 
 func TestListener_imported(t *testing.T) {
 	var buf bytes.Buffer
-	config := wazero.NewRuntimeConfigCompiler()
+	config := gowasm.NewRuntimeConfigCompiler()
 	ctx := experimental.WithFunctionListenerFactory(context.Background(), logging.NewLoggingListenerFactory(&buf))
 
-	r := wazero.NewRuntimeWithConfig(ctx, config)
+	r := gowasm.NewRuntimeWithConfig(ctx, config)
 	defer func() {
 		require.NoError(t, r.Close(ctx))
 	}()
@@ -1313,7 +1313,7 @@ func TestListener_imported(t *testing.T) {
 	compiled, err := r.CompileModule(ctx, binaryencoding.EncodeModule(testcases.ImportedFunctionCall.Module))
 	require.NoError(t, err)
 
-	inst, err := r.InstantiateModule(ctx, compiled, wazero.NewModuleConfig())
+	inst, err := r.InstantiateModule(ctx, compiled, gowasm.NewModuleConfig())
 	require.NoError(t, err)
 
 	res, err := inst.ExportedFunction(testcases.ExportedFunctionName).Call(ctx, 100)
@@ -1350,10 +1350,10 @@ func TestListener_long(t *testing.T) {
 	})
 
 	var buf bytes.Buffer
-	config := wazero.NewRuntimeConfigCompiler()
+	config := gowasm.NewRuntimeConfigCompiler()
 	ctx := experimental.WithFunctionListenerFactory(context.Background(), logging.NewLoggingListenerFactory(&buf))
 
-	r := wazero.NewRuntimeWithConfig(ctx, config)
+	r := gowasm.NewRuntimeWithConfig(ctx, config)
 	defer func() {
 		require.NoError(t, r.Close(ctx))
 	}()
@@ -1400,10 +1400,10 @@ func TestListener_long_as_is(t *testing.T) {
 	})
 
 	var buf bytes.Buffer
-	config := wazero.NewRuntimeConfigCompiler()
+	config := gowasm.NewRuntimeConfigCompiler()
 	ctx := experimental.WithFunctionListenerFactory(context.Background(), logging.NewLoggingListenerFactory(&buf))
 
-	r := wazero.NewRuntimeWithConfig(ctx, config)
+	r := gowasm.NewRuntimeWithConfig(ctx, config)
 	defer func() {
 		require.NoError(t, r.Close(ctx))
 	}()
@@ -1449,10 +1449,10 @@ func TestListener_long_many_consts(t *testing.T) {
 	})
 
 	var buf bytes.Buffer
-	config := wazero.NewRuntimeConfigCompiler()
+	config := gowasm.NewRuntimeConfigCompiler()
 	ctx := experimental.WithFunctionListenerFactory(context.Background(), logging.NewLoggingListenerFactory(&buf))
 
-	r := wazero.NewRuntimeWithConfig(ctx, config)
+	r := gowasm.NewRuntimeWithConfig(ctx, config)
 	defer func() {
 		require.NoError(t, r.Close(ctx))
 	}()
@@ -1474,7 +1474,7 @@ func TestListener_long_many_consts(t *testing.T) {
 
 // TestDWARF verifies that the DWARF based stack traces work as expected before/after compilation cache.
 func TestDWARF(t *testing.T) {
-	config := wazero.NewRuntimeConfigCompiler()
+	config := gowasm.NewRuntimeConfigCompiler()
 	ctx := context.Background()
 
 	bin := dwarftestdata.ZigWasm
@@ -1483,11 +1483,11 @@ func TestDWARF(t *testing.T) {
 
 	var expErr error
 	{
-		cc, err := wazero.NewCompilationCacheWithDir(dir)
+		cc, err := gowasm.NewCompilationCacheWithDir(dir)
 		require.NoError(t, err)
 		rc := config.WithCompilationCache(cc)
 
-		r := wazero.NewRuntimeWithConfig(ctx, rc)
+		r := gowasm.NewRuntimeWithConfig(ctx, rc)
 		_, expErr = r.Instantiate(ctx, bin)
 		require.Error(t, expErr)
 
@@ -1495,10 +1495,10 @@ func TestDWARF(t *testing.T) {
 		require.NoError(t, err)
 	}
 
-	cc, err := wazero.NewCompilationCacheWithDir(dir)
+	cc, err := gowasm.NewCompilationCacheWithDir(dir)
 	require.NoError(t, err)
 	rc := config.WithCompilationCache(cc)
-	r := wazero.NewRuntimeWithConfig(ctx, rc)
+	r := gowasm.NewRuntimeWithConfig(ctx, rc)
 	_, err = r.Instantiate(ctx, bin)
 	require.Error(t, err)
 	require.Equal(t, expErr.Error(), err.Error())

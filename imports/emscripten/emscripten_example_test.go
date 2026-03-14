@@ -4,9 +4,9 @@ import (
 	"context"
 	_ "embed"
 
-	"github.com/tetratelabs/wazero"
-	"github.com/tetratelabs/wazero/imports/emscripten"
-	"github.com/tetratelabs/wazero/imports/wasi_snapshot_preview1"
+	"github.com/topxeq/gowasm"
+	"github.com/topxeq/gowasm/imports/emscripten"
+	"github.com/topxeq/gowasm/imports/wasi_snapshot_preview1"
 )
 
 //go:embed testdata/invoke.wasm
@@ -16,13 +16,13 @@ var invokeWasm []byte
 func Example_instantiateForModule() {
 	ctx := context.Background()
 
-	r := wazero.NewRuntime(ctx)
+	r := gowasm.NewRuntime(ctx)
 	defer r.Close(ctx) // This closes everything this Runtime created.
 
 	// Add WASI which is typically required when using Emscripten.
 	wasi_snapshot_preview1.MustInstantiate(ctx, r)
 
-	// Compile the WASM so wazero can handle dynamically generated imports.
+	// Compile the WASM so gowasm can handle dynamically generated imports.
 	compiled, err := r.CompileModule(ctx, invokeWasm)
 	if err != nil {
 		panic(err)
@@ -42,13 +42,13 @@ func Example_instantiateForModule() {
 func Example_functionExporter() {
 	ctx := context.Background()
 
-	r := wazero.NewRuntime(ctx)
+	r := gowasm.NewRuntime(ctx)
 	defer r.Close(ctx) // This closes everything this Runtime created.
 
 	// Add WASI which is typically required when using Emscripten.
 	wasi_snapshot_preview1.MustInstantiate(ctx, r)
 
-	// Compile the WASM so wazero can handle dynamically generated imports.
+	// Compile the WASM so gowasm can handle dynamically generated imports.
 	compiled, err := r.CompileModule(ctx, invokeWasm)
 	if err != nil {
 		panic(err)

@@ -5,12 +5,12 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/tetratelabs/wazero/api"
-	"github.com/tetratelabs/wazero/internal/testing/dwarftestdata"
-	"github.com/tetratelabs/wazero/internal/testing/hammer"
-	"github.com/tetratelabs/wazero/internal/testing/require"
-	"github.com/tetratelabs/wazero/internal/wasm"
-	"github.com/tetratelabs/wazero/internal/wasm/binary"
+	"github.com/topxeq/gowasm/api"
+	"github.com/topxeq/gowasm/internal/testing/dwarftestdata"
+	"github.com/topxeq/gowasm/internal/testing/hammer"
+	"github.com/topxeq/gowasm/internal/testing/require"
+	"github.com/topxeq/gowasm/internal/wasm"
+	"github.com/topxeq/gowasm/internal/wasm/binary"
 )
 
 func TestDWARFLines_Line_Zig(t *testing.T) {
@@ -34,9 +34,9 @@ func TestDWARFLines_Line_Zig(t *testing.T) {
 	//        0:   0xab - builtin.default_panic
 	//                        at /opt/homebrew/Cellar/zig/0.13.0/lib/zig/std/builtin.zig:792:17
 	//        1:   0x6d - main.inlined_b
-	//                        at /Users/anuraag/git/wazero/internal/testing/dwarftestdata/testdata/zig/main.zig:10:5              - main.inlined_a
-	//                        at /Users/anuraag/git/wazero/internal/testing/dwarftestdata/testdata/zig/main.zig:6:5              - main.main
-	//                        at /Users/anuraag/git/wazero/internal/testing/dwarftestdata/testdata/zig/main.zig:2:5
+	//                        at /Users/anuraag/git/gowasm/internal/testing/dwarftestdata/testdata/zig/main.zig:10:5              - main.inlined_a
+	//                        at /Users/anuraag/git/gowasm/internal/testing/dwarftestdata/testdata/zig/main.zig:6:5              - main.main
+	//                        at /Users/anuraag/git/gowasm/internal/testing/dwarftestdata/testdata/zig/main.zig:2:5
 	//        2:  0x119 - start.callMain
 	//                        at /opt/homebrew/Cellar/zig/0.13.0/lib/zig/std/start.zig:524:37              - start.wasm_freestanding_start
 	//                        at /opt/homebrew/Cellar/zig/0.13.0/lib/zig/std/start.zig:199:5
@@ -108,9 +108,9 @@ func TestDWARFLines_Line_Rust(t *testing.T) {
 	//        6: 0x7b97 - core::panicking::panic_fmt::hfe24bec0337a4754
 	//                        at /rustc/9fc6b43126469e3858e2fe86cafb4f0fd5068869/library/core/src/panicking.rs:76:14
 	//        7:  0x580 - main::b::h7fe25a8329542864
-	//                        at /Users/anuraag/git/wazero/internal/testing/dwarftestdata/testdata/rust/main.rs:12:5              - main::a::hf5dc043bad87cf46
-	//                        at /Users/anuraag/git/wazero/internal/testing/dwarftestdata/testdata/rust/main.rs:7:5              - main::main::hef810e4bf58d9cdf
-	//                        at /Users/anuraag/git/wazero/internal/testing/dwarftestdata/testdata/rust/main.rs:2:5
+	//                        at /Users/anuraag/git/gowasm/internal/testing/dwarftestdata/testdata/rust/main.rs:12:5              - main::a::hf5dc043bad87cf46
+	//                        at /Users/anuraag/git/gowasm/internal/testing/dwarftestdata/testdata/rust/main.rs:7:5              - main::main::hef810e4bf58d9cdf
+	//                        at /Users/anuraag/git/gowasm/internal/testing/dwarftestdata/testdata/rust/main.rs:2:5
 	//        8:  0x331 - core::ops::function::FnOnce::call_once::hb3419529f8e10fb1
 	//                        at /Users/anuraag/.rustup/toolchains/stable-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/ops/function.rs:250:5
 	//        9:  0x496 - std::sys::backtrace::__rust_begin_short_backtrace::h6b7139fa671fb72e
@@ -142,9 +142,9 @@ func TestDWARFLines_Line_Rust(t *testing.T) {
 			"/library/panic_abort/src/lib.rs:43:5",
 		}},
 		{offset: 0x580 - codeSecStart, exp: []string{
-			"/wazero/internal/testing/dwarftestdata/testdata/rust/main.rs:12:5",
-			"/wazero/internal/testing/dwarftestdata/testdata/rust/main.rs:7:5",
-			"/wazero/internal/testing/dwarftestdata/testdata/rust/main.rs:2:5",
+			"/gowasm/internal/testing/dwarftestdata/testdata/rust/main.rs:12:5",
+			"/gowasm/internal/testing/dwarftestdata/testdata/rust/main.rs:7:5",
+			"/gowasm/internal/testing/dwarftestdata/testdata/rust/main.rs:2:5",
 		}},
 		{offset: 0x496 - codeSecStart, exp: []string{
 			"/library/std/src/sys/backtrace.rs:154:18",

@@ -8,8 +8,8 @@ import (
 	"log"
 	"os"
 
-	"github.com/tetratelabs/wazero"
-	"github.com/tetratelabs/wazero/api"
+	"github.com/topxeq/gowasm"
+	"github.com/topxeq/gowasm/api"
 )
 
 // greetWasm was compiled using `zig build`
@@ -31,7 +31,7 @@ func run() error {
 	ctx := context.Background()
 
 	// Create a new WebAssembly Runtime.
-	r := wazero.NewRuntime(ctx)
+	r := gowasm.NewRuntime(ctx)
 	defer r.Close(ctx) // This closes everything this Runtime created.
 
 	// Instantiate a Go-defined module named "env" that exports a function to
@@ -46,7 +46,7 @@ func run() error {
 	// Instantiate a WebAssembly module that imports the "log" function defined
 	// in "env" and exports "memory" and functions we'll use in this example.
 	mod, err := r.InstantiateWithConfig(ctx, greetWasm,
-		wazero.NewModuleConfig().WithStdout(os.Stdout).WithStderr(os.Stderr))
+		gowasm.NewModuleConfig().WithStdout(os.Stdout).WithStderr(os.Stderr))
 	if err != nil {
 		return err
 	}

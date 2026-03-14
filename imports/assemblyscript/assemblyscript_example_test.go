@@ -4,15 +4,15 @@ import (
 	"context"
 	_ "embed"
 
-	"github.com/tetratelabs/wazero"
-	"github.com/tetratelabs/wazero/imports/assemblyscript"
+	"github.com/topxeq/gowasm"
+	"github.com/topxeq/gowasm/imports/assemblyscript"
 )
 
 // This shows how to instantiate AssemblyScript's special imports.
 func Example_instantiate() {
 	ctx := context.Background()
 
-	r := wazero.NewRuntime(ctx)
+	r := gowasm.NewRuntime(ctx)
 	defer r.Close(ctx) // This closes everything this Runtime created.
 
 	// This adds the "env" module to the runtime, with AssemblyScript's special
@@ -27,7 +27,7 @@ func Example_instantiate() {
 func Example_functionExporter() {
 	ctx := context.Background()
 
-	r := wazero.NewRuntime(ctx)
+	r := gowasm.NewRuntime(ctx)
 	defer r.Close(ctx) // This closes everything this Runtime created.
 
 	// First construct your own module builder for "env"

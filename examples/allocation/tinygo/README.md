@@ -8,9 +8,9 @@ in TinyGo, built with
 ```
 
 ```bash
-$ go run greet.go wazero
-wasm >> Hello, wazero!
-go >> Hello, wazero!
+$ go run greet.go gowasm
+wasm >> Hello, gowasm!
+go >> Hello, gowasm!
 ```
 
 Under the covers, [greet.go](testdata/greet.go) does a few things of interest:
@@ -18,4 +18,4 @@ Under the covers, [greet.go](testdata/greet.go) does a few things of interest:
 * Uses `reflect.StringHeader` to build back a string from a pointer, len pair.
 * Relies on CGO to allocate memory used to pass data from TinyGo to host.
 
-See https://wazero.io/languages/tinygo/ for more tips.
+See https://gowasm.io/languages/tinygo/ for more tips.

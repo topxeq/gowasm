@@ -5,9 +5,9 @@ import (
 	"os"
 	"path"
 
-	experimentalsys "github.com/tetratelabs/wazero/experimental/sys"
-	"github.com/tetratelabs/wazero/internal/platform"
-	"github.com/tetratelabs/wazero/sys"
+	experimentalsys "github.com/topxeq/gowasm/experimental/sys"
+	"github.com/topxeq/gowasm/internal/platform"
+	"github.com/topxeq/gowasm/sys"
 )
 
 func DirFS(dir string) experimentalsys.FS {

@@ -9,13 +9,13 @@ import (
 	"strings"
 	"unsafe"
 
-	"github.com/tetratelabs/wazero/api"
-	experimentalsys "github.com/tetratelabs/wazero/experimental/sys"
-	socketapi "github.com/tetratelabs/wazero/internal/sock"
-	"github.com/tetratelabs/wazero/internal/sys"
-	"github.com/tetratelabs/wazero/internal/wasip1"
-	"github.com/tetratelabs/wazero/internal/wasm"
-	sysapi "github.com/tetratelabs/wazero/sys"
+	"github.com/topxeq/gowasm/api"
+	experimentalsys "github.com/topxeq/gowasm/experimental/sys"
+	socketapi "github.com/topxeq/gowasm/internal/sock"
+	"github.com/topxeq/gowasm/internal/sys"
+	"github.com/topxeq/gowasm/internal/wasip1"
+	"github.com/topxeq/gowasm/internal/wasm"
+	sysapi "github.com/topxeq/gowasm/sys"
 )
 
 // fdAdvise is the WASI function named FdAdviseName which provides file
@@ -729,7 +729,7 @@ func fdPwriteFn(_ context.Context, mod api.Module, params []uint64) experimental
 //	          |            |            |           |
 //	 offset --+   length --+   offset --+  length --+
 //
-// If the contents of the `fd` parameter was "wazero" (6 bytes) and parameter
+// If the contents of the `fd` parameter was "gowasm" (6 bytes) and parameter
 // resultNread=26, this function writes the below to api.Memory:
 //
 //	                    iovs[0].length        iovs[1].length
@@ -1214,7 +1214,7 @@ func fdTellFn(ctx context.Context, mod api.Module, params []uint64) experimental
 //	  iovs[0].offset --^                      ^
 //	                         iovs[1].offset --+
 //
-// Since "wazero" was written, if parameter resultNwritten=26, this function
+// Since "gowasm" was written, if parameter resultNwritten=26, this function
 // writes the below to api.Memory:
 //
 //	                   uint32le
@@ -1545,7 +1545,7 @@ func pathLinkFn(_ context.Context, mod api.Module, params []uint64) experimental
 //   - sys.EIO: a file system error
 //
 // For example, this function needs to first read `path` to determine the file
-// to open. If parameters `path` = 1, `pathLen` = 6, and the path is "wazero",
+// to open. If parameters `path` = 1, `pathLen` = 6, and the path is "gowasm",
 // pathOpen reads the path from api.Memory:
 //
 //	                pathLen
@@ -1721,7 +1721,7 @@ func openFlags(dirflags, oflags, fdflags uint16, rights uint32) (openFlags exper
 	// divergent behavior compared to WASI runtimes which have a more strict
 	// interpretation of the WASI capabilities model; for example, a program
 	// which sets O_CREAT but does not give read or write permissions will
-	// successfully create a file when running with wazero, but might get a
+	// successfully create a file when running with gowasm, but might get a
 	// permission denied error on other runtimes.
 	defaultMode := experimentalsys.O_RDONLY
 	if oflags&wasip1.O_TRUNC != 0 {

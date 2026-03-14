@@ -7,9 +7,9 @@ import (
 	"log"
 	"os"
 
-	"github.com/tetratelabs/wazero"
-	"github.com/tetratelabs/wazero/api"
-	"github.com/tetratelabs/wazero/imports/wasi_snapshot_preview1"
+	"github.com/topxeq/gowasm"
+	"github.com/topxeq/gowasm/api"
+	"github.com/topxeq/gowasm/imports/wasi_snapshot_preview1"
 )
 
 // greetWasm was compiled using `tinygo build -o greet.wasm -scheduler=none --no-debug -target=wasi greet.go`
@@ -26,7 +26,7 @@ func main() {
 	ctx := context.Background()
 
 	// Create a new WebAssembly Runtime.
-	r := wazero.NewRuntime(ctx)
+	r := gowasm.NewRuntime(ctx)
 	defer r.Close(ctx) // This closes everything this Runtime created.
 
 	// Instantiate a Go-defined module named "env" that exports a function to
@@ -44,7 +44,7 @@ func main() {
 
 	// Instantiate a WebAssembly module that imports the "log" function defined
 	// in "env" and exports "memory" and functions we'll use in this example.
-	mod, err := r.InstantiateWithConfig(ctx, greetWasm, wazero.NewModuleConfig().WithStartFunctions("_initialize"))
+	mod, err := r.InstantiateWithConfig(ctx, greetWasm, gowasm.NewModuleConfig().WithStartFunctions("_initialize"))
 	if err != nil {
 		log.Panicln(err)
 	}

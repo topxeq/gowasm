@@ -1,11 +1,11 @@
 package wasm
 
 import (
-	"github.com/tetratelabs/wazero/api"
-	"github.com/tetratelabs/wazero/internal/internalapi"
+	"github.com/topxeq/gowasm/api"
+	"github.com/topxeq/gowasm/internal/internalapi"
 )
 
-// ImportedMemories implements the same method as documented on wazero.CompiledModule.
+// ImportedMemories implements the same method as documented on gowasm.CompiledModule.
 func (m *Module) ImportedMemories() (ret []api.MemoryDefinition) {
 	for i := range m.MemoryDefinitionSection {
 		d := &m.MemoryDefinitionSection[i]
@@ -16,7 +16,7 @@ func (m *Module) ImportedMemories() (ret []api.MemoryDefinition) {
 	return
 }
 
-// ExportedMemories implements the same method as documented on wazero.CompiledModule.
+// ExportedMemories implements the same method as documented on gowasm.CompiledModule.
 func (m *Module) ExportedMemories() map[string]api.MemoryDefinition {
 	ret := map[string]api.MemoryDefinition{}
 	for i := range m.MemoryDefinitionSection {
@@ -31,7 +31,7 @@ func (m *Module) ExportedMemories() map[string]api.MemoryDefinition {
 // BuildMemoryDefinitions generates memory metadata that can be parsed from
 // the module. This must be called after all validation.
 //
-// Note: This is exported for wazero.Runtime `CompileModule`.
+// Note: This is exported for gowasm.Runtime `CompileModule`.
 func (m *Module) BuildMemoryDefinitions() {
 	var moduleName string
 	if m.NameSection != nil {

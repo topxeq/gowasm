@@ -2,13 +2,13 @@
 title = "Specifications"
 +++
 
-wazero understands that while no-one desired to create confusion, confusion
+gowasm understands that while no-one desired to create confusion, confusion
 exists both in what is a standard and what in practice is in fact a standard
 feature. To help with this, we created some guidance both on the status quo
 of WebAssembly portability and what we support.
 
 The WebAssembly Core Specification is the only specification relevant to
-wazero, governed by a standards body. Release [1.0][1] is a Web Standard (REC).
+gowasm, governed by a standards body. Release [1.0][1] is a Web Standard (REC).
 Release [2.0][2] is a Working Draft (WD), so not yet a Web Standard.
 
 Many compilers implement system calls using the WebAssembly System Interface,
@@ -18,39 +18,39 @@ any working drafts as a result of their work. WASI's last stable point was
 
 While this seems scary, the confusion caused by pre-standard features is not as
 bad as it sounds. The WebAssembly ecosystem is generally responsive regardless
-of where things are written down and wazero provides tools, such as built-in
+of where things are written down and gowasm provides tools, such as built-in
 support for WASI, to reduce pain.
 
 The goal of this section isn't to promote a W3C recommendation exclusive
 approach, rather to help you understand common language around portable
-features and which of those wazero supports at the moment. While we consider
+features and which of those gowasm supports at the moment. While we consider
 features formalized through W3C recommendation status mandatory, we actively
 pursue pre-standard features as well interop with commonly used infrastructure
 such as AssemblyScript.
 
-In summary, we hope this section can guide you in terms of what wazero supports
+In summary, we hope this section can guide you in terms of what gowasm supports
 as well as how to classify a request for a feature we don't yet support.
 
 ### WebAssembly Core {#core}
-wazero conforms with tests defined alongside WebAssembly Core
+gowasm conforms with tests defined alongside WebAssembly Core
 Specification [1.0][1] and [2.0][14].
 
 By default, the runtime configuration enables features in WebAssembly Core
 Specification, despite it not yet being a Web Standard (REC). You can select
 version 1.0 like so:
 ```go
-rConfig = wazero.NewRuntimeConfig().WithCoreFeatures(api.CoreFeaturesV1)
+rConfig = gowasm.NewRuntimeConfig().WithCoreFeatures(api.CoreFeaturesV1)
 ```
 
-One current limitation of wazero is that it doesn't implement the Text
+One current limitation of gowasm is that it doesn't implement the Text
 Format, e.g. compiling `.wat` files. Users can work around this using tools such as `wat2wasm` to
 compile the text format into the binary format. In practice, the text format is
 too low level for most users, so delays here have limited impact.
 
 #### Post 2.0 Features
 Features regardless of W3C release are inventoried in the [Proposals][10].
-repository. wazero implements [Finished Proposals][11] based on user demand,
-using [wazero.RuntimeConfig][7] feature flags. As of late 2022, all finished
+repository. gowasm implements [Finished Proposals][11] based on user demand,
+using [gowasm.RuntimeConfig][7] feature flags. As of late 2022, all finished
 proposals are included in [2.0][14] Working Draft.
 
 Features not yet assigned to a W3C release are not reliable. Encourage the
@@ -70,9 +70,9 @@ GrainLang, import functions not used. Finally, some functions were added and
 removed after the git tag. For example, [`proc_raise`][13] was removed and
 [`sock_accept`][15] added.
 
-For all of these reasons, wazero will not implement all WASI features, just to
+For all of these reasons, gowasm will not implement all WASI features, just to
 complete the below chart. If you desire something not yet implemented, please
-[raise an issue](https://github.com/tetratelabs/wazero/issues/new) and include
+[raise an issue](https://github.com/tetratelabs/gowasm/issues/new) and include
 your use case (ex which language you are using to compile, a.k.a. target Wasm).
 
 Notes:
@@ -143,8 +143,8 @@ Note: 💀 means the function was later removed from WASI.
 [4]: https://github.com/WebAssembly/WASI/blob/snapshot-01/phases/snapshot/docs.md
 [5]: https://github.com/WebAssembly/WASI
 [6]: https://github.com/WebAssembly/spec/tree/wg-1.0/test/core
-[7]: https://pkg.go.dev/github.com/tetratelabs/wazero#RuntimeConfig
-[9]: https://github.com/tetratelabs/wazero/issues/59
+[7]: https://pkg.go.dev/github.com/tetratelabs/gowasm#RuntimeConfig
+[9]: https://github.com/tetratelabs/gowasm/issues/59
 [10]: https://github.com/WebAssembly/proposals
 [11]: https://github.com/WebAssembly/proposals/blob/main/finished-proposals.md
 [12]: https://www.w3.org/community/webassembly/

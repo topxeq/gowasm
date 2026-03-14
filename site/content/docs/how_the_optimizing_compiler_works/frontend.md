@@ -15,7 +15,7 @@ indicates the flags that can be used to enable advanced logging of the phase.
 
 ## Translation to SSA
 
-We mentioned earlier that wazero uses an internal representation called an "SSA"
+We mentioned earlier that gowasm uses an internal representation called an "SSA"
 form or "Static Single-Assignment" form, but we never explained what that is.
 
 In short terms, every program, or, in our case, every Wasm function, can be
@@ -105,7 +105,7 @@ comparing `v2` to `v3` using the `i32.lt_s` instruction. Then, it branches to
 `blk2` if `v4` is zero, otherwise it jumps to `blk1`.
 
 You might also have noticed that the instructions do not correspond strictly to
-the original Wasm opcodes. This is because, similarly to the wazero IR used by
+the original Wasm opcodes. This is because, similarly to the gowasm IR used by
 the old compiler, this is a custom IR.
 
 You will also notice that, _on the right-hand side of the assignments_ of any statement,
@@ -167,7 +167,7 @@ blk1: () <-- (blk0)
 
 `Iconst_32` takes no input value and produce value `v6`; `Isub` takes two input values (`v6`, `v2`)
 and produces value `v7`; `Jump` takes one input value (`v7`) and produces no value. All
-such values have the `i32` type. The wazero SSA's type system (`ssa.Type`) allows the following types:
+such values have the `i32` type. The gowasm SSA's type system (`ssa.Type`) allows the following types:
 
 - `i32`: 32-bit integer
 - `i64`: 64-bit integer
@@ -234,7 +234,7 @@ occurs at the control-flow graph level.
 
 In practice, because WebAssembly is a compilation target, these simple
 optimizations are often unnecessary. The optimization passes implemented in
-wazero are also work-in-progress and, at the time of writing, further work is
+gowasm are also work-in-progress and, at the time of writing, further work is
 expected to implement more advanced optimizations.
 
 ### Code

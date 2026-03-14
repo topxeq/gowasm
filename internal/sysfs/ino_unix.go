@@ -6,8 +6,8 @@ import (
 	"io/fs"
 	"syscall"
 
-	experimentalsys "github.com/tetratelabs/wazero/experimental/sys"
-	"github.com/tetratelabs/wazero/sys"
+	experimentalsys "github.com/topxeq/gowasm/experimental/sys"
+	"github.com/topxeq/gowasm/sys"
 )
 
 func inoFromFileInfo(_ string, info fs.FileInfo) (sys.Inode, experimentalsys.Errno) {

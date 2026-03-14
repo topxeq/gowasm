@@ -9,8 +9,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/tetratelabs/wazero"
-	"github.com/tetratelabs/wazero/internal/platform"
+	"github.com/topxeq/gowasm"
+	"github.com/topxeq/gowasm/internal/platform"
 )
 
 func TestMemoryLeak(t *testing.T) {
@@ -39,7 +39,7 @@ func TestMemoryLeak(t *testing.T) {
 	runtime.ReadMemStats(&stats)
 
 	if stats.Alloc > (100 * 1024 * 1024) {
-		t.Errorf("wazero used more than 100 MiB after running the test for %s (alloc=%d)", duration, stats.Alloc)
+		t.Errorf("gowasm used more than 100 MiB after running the test for %s (alloc=%d)", duration, stats.Alloc)
 	}
 	fmt.Println(stats.Alloc)
 }
@@ -47,7 +47,7 @@ func TestMemoryLeak(t *testing.T) {
 func testMemoryLeakInstantiateRuntimeAndModule() error {
 	ctx := context.Background()
 
-	r := wazero.NewRuntime(ctx)
+	r := gowasm.NewRuntime(ctx)
 	defer r.Close(ctx)
 
 	hostBuilder := r.NewHostModuleBuilder("test")
@@ -65,7 +65,7 @@ func testMemoryLeakInstantiateRuntimeAndModule() error {
 	}
 
 	mod, err := r.InstantiateWithConfig(ctx, memoryWasm,
-		wazero.NewModuleConfig().WithStartFunctions())
+		gowasm.NewModuleConfig().WithStartFunctions())
 	if err != nil {
 		return err
 	}

@@ -10,7 +10,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/tetratelabs/wazero/internal/testing/require"
+	"github.com/topxeq/gowasm/internal/testing/require"
 )
 
 //go:embed testdata/cli.wasm
@@ -42,7 +42,7 @@ func TestRun(t *testing.T) {
 		cmdExe = cmdPath
 	} else {
 		cmdExe = filepath.Join(runtime.GOROOT(), "bin", "go")
-		cmdArgs = []string{"run", "../../cmd/wazero"}
+		cmdArgs = []string{"run", "../../cmd/gowasm"}
 	}
 	cmdArgs = append(cmdArgs, "run", wasmPath)
 

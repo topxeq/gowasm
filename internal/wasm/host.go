@@ -4,8 +4,8 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/tetratelabs/wazero/api"
-	"github.com/tetratelabs/wazero/internal/wasmdebug"
+	"github.com/topxeq/gowasm/api"
+	"github.com/topxeq/gowasm/internal/wasmdebug"
 )
 
 type HostFuncExporter interface {

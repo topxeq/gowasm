@@ -11,9 +11,9 @@ architecture-specific binaries through three targets:
 * `wasm32-freestanding`: for standalone use in or outside the browser.
 * `wasm32-wasi`: for use outside the browser.
 
-This document is maintained by wazero, which is a WebAssembly runtime that
+This document is maintained by gowasm, which is a WebAssembly runtime that
 embeds in Go applications. Hence, our notes focus on targets used outside the
-browser, tested by wazero: `wasm32-freestanding` and `wasm32-wasi`.
+browser, tested by gowasm: `wasm32-freestanding` and `wasm32-wasi`.
 
 ## Overview
 
@@ -47,8 +47,8 @@ compiles the source as a library, i.e. without a `main` function.
 
 ## Disclaimer
 
-This document includes notes contributed by the wazero community for Zig 0.10.1. 
-While wazero includes Zig examples, and maintainers contribute to Zig, this
+This document includes notes contributed by the gowasm community for Zig 0.10.1. 
+While gowasm includes Zig examples, and maintainers contribute to Zig, this
 isn't a Zig official document. For more help, consider the [WebAssembly Documentation][4] 
 or joining the [#programming-discussion channel on 
 Zig's Discord][5]. 
@@ -90,7 +90,7 @@ memory offset (`ptr`). At that point, it can call a host function, ex
 from Zig) will be able to read the data. To ensure no memory leaks, the host
 calls a free function, with the same `ptr`, afterwards and unconditionally.
 
-Note: wazero includes an [example project][9] that shows this.
+Note: gowasm includes an [example project][9] that shows this.
 
 The [zig example][9] does a few things of interest:
 * Uses `@ptrToInt` to change a Zig pointer to a numeric type
@@ -138,7 +138,7 @@ Zig's standard library support for WASI is under active development.
 In general, you should favor use of the standard library when compiling against 
 wasm32-wasi target (e.g. `std.io`).
 
-Note: wazero includes an [example WASI project][10] including [source code][11]
+Note: gowasm includes an [example WASI project][10] including [source code][11]
 that implements `cat` without any WebAssembly-specific code.
 
 ## Concurrency
@@ -187,10 +187,10 @@ source code may reduce binary size further.
 [2]: https://ziglang.org/documentation/0.10.1/#WASI
 [4]: https://ziglang.org/documentation/0.10.1/#WebAssembly
 [5]: https://discord.gg/gxsFFjE
-[6]: https://github.com/tetratelabs/wazero/tree/main/site/content/languages/zig.md
-[7]: https://github.com/tetratelabs/wazero/stargazers
-[9]: https://github.com/tetratelabs/wazero/tree/main/examples/allocation/zig
+[6]: https://github.com/tetratelabs/gowasm/tree/main/site/content/languages/zig.md
+[7]: https://github.com/tetratelabs/gowasm/stargazers
+[9]: https://github.com/tetratelabs/gowasm/tree/main/examples/allocation/zig
 [9b]: https://ziglang.org/documentation/0.10.1/#Memory
-[10]: https://github.com/tetratelabs/wazero/tree/main/imports/wasi_snapshot_preview1/example/testdata/zig
-[11]: https://github.com/tetratelabs/wazero/blob/main/imports/wasi_snapshot_preview1/example/testdata/zig/cat.zig
+[10]: https://github.com/tetratelabs/gowasm/tree/main/imports/wasi_snapshot_preview1/example/testdata/zig
+[11]: https://github.com/tetratelabs/gowasm/blob/main/imports/wasi_snapshot_preview1/example/testdata/zig/cat.zig
 [13]: https://ziglang.org/documentation/0.10.1/#Build-Mode

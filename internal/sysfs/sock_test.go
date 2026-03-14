@@ -5,8 +5,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/tetratelabs/wazero/experimental/sys"
-	"github.com/tetratelabs/wazero/internal/testing/require"
+	"github.com/topxeq/gowasm/experimental/sys"
+	"github.com/topxeq/gowasm/internal/testing/require"
 )
 
 func TestTcpConnFile_Write(t *testing.T) {
@@ -25,7 +25,7 @@ func TestTcpConnFile_Write(t *testing.T) {
 	// Ensure we don't interrupt until we get a non-zero errno,
 	// and we retry on EAGAIN (i.e. when nonblocking is true).
 	for {
-		_, errno = file.Write([]byte("wazero"))
+		_, errno = file.Write([]byte("gowasm"))
 		if errno != sys.EAGAIN {
 			break
 		}
@@ -59,7 +59,7 @@ func TestTcpConnFile_Read(t *testing.T) {
 	require.NoError(t, err)
 	defer tcp.Close() //nolint
 
-	n, err := tcp.Write([]byte("wazero"))
+	n, err := tcp.Write([]byte("gowasm"))
 	require.NoError(t, err)
 	require.NotEqual(t, 0, n)
 
@@ -97,7 +97,7 @@ func TestTcpConnFile_Read(t *testing.T) {
 	// with a delay that is visible to the test.
 	go func() {
 		time.Sleep(200 * time.Millisecond)
-		n2, err := tcp2.Write([]byte("wazero"))
+		n2, err := tcp2.Write([]byte("gowasm"))
 		require.NoError(t, err)
 		require.NotEqual(t, 0, n2)
 	}()

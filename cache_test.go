@@ -1,4 +1,4 @@
-package wazero
+package gowasm
 
 import (
 	"context"
@@ -9,9 +9,9 @@ import (
 	goruntime "runtime"
 	"testing"
 
-	"github.com/tetratelabs/wazero/internal/platform"
-	"github.com/tetratelabs/wazero/internal/testing/require"
-	"github.com/tetratelabs/wazero/internal/wasm"
+	"github.com/topxeq/gowasm/internal/platform"
+	"github.com/topxeq/gowasm/internal/testing/require"
+	"github.com/topxeq/gowasm/internal/wasm"
 )
 
 //go:embed testdata/fac.wasm
@@ -155,7 +155,7 @@ func getCacheSharedRuntimes(ctx context.Context, t *testing.T) (foo, bar *runtim
 func TestCache_ensuresFileCache(t *testing.T) {
 	const version = "dev"
 	// We expect to create a version-specific subdirectory.
-	expectedSubdir := fmt.Sprintf("wazero-dev-%s-%s", goruntime.GOARCH, goruntime.GOOS)
+	expectedSubdir := fmt.Sprintf("gowasm-dev-%s-%s", goruntime.GOARCH, goruntime.GOOS)
 
 	t.Run("ok", func(t *testing.T) {
 		dir := t.TempDir()

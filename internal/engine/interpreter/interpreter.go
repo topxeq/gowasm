@@ -11,18 +11,18 @@ import (
 	"sync"
 	"unsafe"
 
-	"github.com/tetratelabs/wazero/api"
-	"github.com/tetratelabs/wazero/experimental"
-	"github.com/tetratelabs/wazero/internal/expctxkeys"
-	"github.com/tetratelabs/wazero/internal/filecache"
-	"github.com/tetratelabs/wazero/internal/internalapi"
-	"github.com/tetratelabs/wazero/internal/moremath"
-	"github.com/tetratelabs/wazero/internal/wasm"
-	"github.com/tetratelabs/wazero/internal/wasmdebug"
-	"github.com/tetratelabs/wazero/internal/wasmruntime"
+	"github.com/topxeq/gowasm/api"
+	"github.com/topxeq/gowasm/experimental"
+	"github.com/topxeq/gowasm/internal/expctxkeys"
+	"github.com/topxeq/gowasm/internal/filecache"
+	"github.com/topxeq/gowasm/internal/internalapi"
+	"github.com/topxeq/gowasm/internal/moremath"
+	"github.com/topxeq/gowasm/internal/wasm"
+	"github.com/topxeq/gowasm/internal/wasmdebug"
+	"github.com/topxeq/gowasm/internal/wasmruntime"
 )
 
-// callStackCeiling is the maximum WebAssembly call frame stack height. This allows wazero to raise
+// callStackCeiling is the maximum WebAssembly call frame stack height. This allows gowasm to raise
 // wasm.ErrCallStackOverflow instead of overflowing the Go runtime.
 //
 // The default value should suffice for most use cases. Those wishing to change this can via `go build -ldflags`.

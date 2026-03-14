@@ -3,21 +3,21 @@ title = "How the Optimizing Compiler Works"
 layout = "single"
 +++
 
-wazero supports two modes of execution: interpreter mode and compilation mode.
+gowasm supports two modes of execution: interpreter mode and compilation mode.
 The interpreter mode is a fallback mode for platforms where compilation is not
 supported. Compilation mode is otherwise the default mode of execution: it
 translates Wasm modules to native code to get the best run-time performance.
 
-Translating Wasm bytecode into machine code can take multiple forms.  wazero
+Translating Wasm bytecode into machine code can take multiple forms.  gowasm
 1.0 performs a straightforward translation from a given instruction to a native
-instruction. wazero 2.0 introduces an optimizing compiler that is able to
+instruction. gowasm 2.0 introduces an optimizing compiler that is able to
 perform nontrivial optimizing transformations, such as constant folding or
 dead-code elimination, and it makes better use of the underlying hardware, such
 as CPU registers. This document digs deeper into what we mean when we say
-"optimizing compiler", and explains how it is implemented in wazero.
+"optimizing compiler", and explains how it is implemented in gowasm.
 
 This document is intended for maintainers, researchers, developers and in
-general anyone interested in understanding the internals of wazero.
+general anyone interested in understanding the internals of gowasm.
 
 What is an Optimizing Compiler?
 -------------------------------
@@ -32,20 +32,20 @@ two, depending on how you count:
 
 ```goat
     Input         +---------------+     +---------------+
- Wasm Binary ---->| DecodeModule  |---->| CompileModule |----> wazero IR
+ Wasm Binary ---->| DecodeModule  |---->| CompileModule |----> gowasm IR
                   +---------------+     +---------------+
 ```
 
 That is, the module is (1) validated then (2) translated to an Intermediate
-Representation (IR). The wazero IR can then be executed directly (in the case
+Representation (IR). The gowasm IR can then be executed directly (in the case
 of the interpreter) or it can be further processed and translated into native
 code by the compiler. This compiler performs a straightforward translation from
-the IR to native code, without any further passes. The wazero IR is not intended
+the IR to native code, without any further passes. The gowasm IR is not intended
 for further processing beyond immediate execution or straightforward
 translation.
 
 ```goat
-                +----   wazero IR    ----+
+                +----   gowasm IR    ----+
                 |                        |
                 v                        v
         +--------------+         +--------------+
@@ -80,7 +80,7 @@ optimization passes can apply directly to the IR, and thus be
 machine-independent. Then the back-end can be relatively simpler, in that it
 will only have to deal with machine-specific concerns.
 
-The wazero optimizing compiler implements the following compilation passes:
+The gowasm optimizing compiler implements the following compilation passes:
 
 * Front-End:
   - Translation to SSA

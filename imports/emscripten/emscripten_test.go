@@ -6,15 +6,15 @@ import (
 	_ "embed"
 	"testing"
 
-	"github.com/tetratelabs/wazero"
-	"github.com/tetratelabs/wazero/api"
-	"github.com/tetratelabs/wazero/experimental"
-	"github.com/tetratelabs/wazero/experimental/logging"
-	"github.com/tetratelabs/wazero/imports/wasi_snapshot_preview1"
-	internal "github.com/tetratelabs/wazero/internal/emscripten"
-	"github.com/tetratelabs/wazero/internal/testing/binaryencoding"
-	"github.com/tetratelabs/wazero/internal/testing/require"
-	"github.com/tetratelabs/wazero/internal/wasm"
+	"github.com/topxeq/gowasm"
+	"github.com/topxeq/gowasm/api"
+	"github.com/topxeq/gowasm/experimental"
+	"github.com/topxeq/gowasm/experimental/logging"
+	"github.com/topxeq/gowasm/imports/wasi_snapshot_preview1"
+	internal "github.com/topxeq/gowasm/internal/emscripten"
+	"github.com/topxeq/gowasm/internal/testing/binaryencoding"
+	"github.com/topxeq/gowasm/internal/testing/require"
+	"github.com/topxeq/gowasm/internal/wasm"
 )
 
 const (
@@ -48,7 +48,7 @@ func TestGrow(t *testing.T) {
 	ctx := experimental.WithFunctionListenerFactory(testCtx,
 		logging.NewHostLoggingListenerFactory(&log, logging.LogScopeMemory))
 
-	r := wazero.NewRuntime(ctx)
+	r := gowasm.NewRuntime(ctx)
 	defer r.Close(ctx)
 
 	wasi_snapshot_preview1.MustInstantiate(ctx, r)
@@ -324,7 +324,7 @@ func TestNewFunctionExporterForModule(t *testing.T) {
 		tc := tt
 
 		t.Run(tc.name, func(t *testing.T) {
-			r := wazero.NewRuntime(testCtx)
+			r := gowasm.NewRuntime(testCtx)
 			defer r.Close(testCtx)
 
 			guest, err := r.CompileModule(testCtx, binaryencoding.EncodeModule(tc.input))
@@ -348,7 +348,7 @@ func TestInstantiateForModule(t *testing.T) {
 	// Set context to one that has an experimental listener
 	ctx := experimental.WithFunctionListenerFactory(testCtx, logging.NewLoggingListenerFactory(&log))
 
-	r := wazero.NewRuntime(ctx)
+	r := gowasm.NewRuntime(ctx)
 	defer r.Close(ctx)
 
 	compiled, err := r.CompileModule(ctx, invokeWasm)
@@ -357,7 +357,7 @@ func TestInstantiateForModule(t *testing.T) {
 	_, err = InstantiateForModule(ctx, r, compiled)
 	require.NoError(t, err)
 
-	mod, err := r.InstantiateModule(ctx, compiled, wazero.NewModuleConfig())
+	mod, err := r.InstantiateModule(ctx, compiled, gowasm.NewModuleConfig())
 	require.NoError(t, err)
 
 	tests := []struct {

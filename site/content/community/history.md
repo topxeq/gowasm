@@ -1,8 +1,8 @@
 +++
-title = "History of wazero"
+title = "History of gowasm"
 +++
 
-wazero was originally developed by [Takeshi Yoneda][1] as a hobby project in
+gowasm was originally developed by [Takeshi Yoneda][1] as a hobby project in
 mid 2020. In late 2021, it was sponsored by Tetrate as a top-level project.
 That said, Takeshi's original motivation is as relevant today as when he
 started the project, and worthwhile reading:
@@ -29,9 +29,9 @@ introduces complexity. For example, CGO projects are larger and complicated to
 consume due to their libc + shared library dependency. Debugging is more
 difficult for Go developers when most of a library is written in Rustlang.
 [_CGO is not Go_][5] [ -- _Rob_ _Pike_][6] dives in deeper. In short, the
-primary motivation to start wazero was to avoid CGO.
+primary motivation to start gowasm was to avoid CGO.
 
-wazero compiles WebAssembly modules into native assembly (Compiler) by default. You
+gowasm compiles WebAssembly modules into native assembly (Compiler) by default. You
 may be surprised to find equal or better performance vs mature Compiler-style
 runtimes because [CGO is slow][7]. More specifically, if you make large amount
 of CGO calls which cross the boundary between Go and C (stack) space, then the

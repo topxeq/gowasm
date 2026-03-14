@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/tetratelabs/wazero/api"
-	"github.com/tetratelabs/wazero/experimental"
-	"github.com/tetratelabs/wazero/internal/leb128"
-	"github.com/tetratelabs/wazero/internal/testing/require"
+	"github.com/topxeq/gowasm/api"
+	"github.com/topxeq/gowasm/experimental"
+	"github.com/topxeq/gowasm/internal/leb128"
+	"github.com/topxeq/gowasm/internal/testing/require"
 )
 
 func TestModule_ValidateFunction_validateFunctionWithMaxStackValues(t *testing.T) {

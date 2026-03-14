@@ -5,8 +5,8 @@ import (
 	"math"
 	"testing"
 
-	"github.com/tetratelabs/wazero/api"
-	"github.com/tetratelabs/wazero/internal/testing/require"
+	"github.com/topxeq/gowasm/api"
+	"github.com/topxeq/gowasm/internal/testing/require"
 )
 
 func TestModuleInstance_LookupFunction(t *testing.T) {

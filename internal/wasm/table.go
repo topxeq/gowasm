@@ -5,7 +5,7 @@ import (
 	"math"
 	"sync"
 
-	"github.com/tetratelabs/wazero/api"
+	"github.com/topxeq/gowasm/api"
 )
 
 // Table describes the limits of elements and its type in a table.
@@ -21,7 +21,7 @@ type RefType = byte
 const (
 	// RefTypeFuncref represents a reference to a function.
 	RefTypeFuncref = ValueTypeFuncref
-	// RefTypeExternref represents a reference to a host object, which is not currently supported in wazero.
+	// RefTypeExternref represents a reference to a host object, which is not currently supported in gowasm.
 	RefTypeExternref = ValueTypeExternref
 )
 

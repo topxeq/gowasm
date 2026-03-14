@@ -1,7 +1,7 @@
 # How do compiler functions work?
 
 WebAssembly runtimes let you call functions defined in wasm. How this works in
-wazero is different depending on your `RuntimeConfig`.
+gowasm is different depending on your `RuntimeConfig`.
 
 * `RuntimeConfigCompiler` compiles machine code from your wasm, and jumps to
   that when invoking a function.
@@ -14,7 +14,7 @@ this page. For more general information on architecture, etc., please refer to
 
 ## Engines
 
-Our [Docs](..) introduce the "engine" concept of wazero. More precisely, there
+Our [Docs](..) introduce the "engine" concept of gowasm. More precisely, there
 are three types of engines, `Engine`, `ModuleEngine` and `callEngine`. Each has
 a different scope and role:
 
@@ -77,7 +77,7 @@ invoked from Wasm. To handle this, we employ a "trampoline strategy".
 Let's explain the "trampoline strategy" with an example. `random_get` is a host
 function defined in Go, called from machine code compiled from guest `main`
 function. Let's say the wasm function corresponding to that is called `_start`.
-`_start` function is called by wazero by default on `Instantiate`.
+`_start` function is called by gowasm by default on `Instantiate`.
 
 Here is a TinyGo source file describing this.
 ```go
@@ -86,7 +86,7 @@ func random_get(age int32)package main
 
 import "unsafe"
 
-// random_get is a function defined on the host, specifically, the wazero
+// random_get is a function defined on the host, specifically, the gowasm
 // program written in Go.
 //
 //go:wasmimport wasi_snapshot_preview1 random_get
@@ -109,8 +109,8 @@ func main() {
 }
 ```
 
-When `_start` calls `random_get`, it exits execution first. wazero calls the Go
-function mapped to `random_get` like a usual Go program. Finally, wazero
+When `_start` calls `random_get`, it exits execution first. gowasm calls the Go
+function mapped to `random_get` like a usual Go program. Finally, gowasm
 transfers control back to machine code again, resuming `_start` after the call
 instruction to `random_get`.
 
@@ -160,9 +160,9 @@ func main() {
 Native JIT compilers set custom signal handlers for [Wasm runtime traps][spec-trap],
 such as the [unreachable][spec-unreachable] instruction. However, we cannot
 safely [modify the signal handler of Go at runtime][signal-handler-discussion].
-As described in the first section, wazero always exits the execution of machine
+As described in the first section, gowasm always exits the execution of machine
 code. Machine code sets status when it encounters an `unreachable` instruction.
-This is read by wazero, which propagates it back with `ErrRuntimeUnreachable`.
+This is read by gowasm, which propagates it back with `ErrRuntimeUnreachable`.
 
 Here's a diagram showing this:
 ```goat
@@ -191,8 +191,8 @@ strategy is only used between wasm and the host.
 
 ## Summary
 
-When an exported wasm function is called, using a wazero API, such as
-`Function.Call()`, wazero allocates a `callEngine` and starts invocation. This
+When an exported wasm function is called, using a gowasm API, such as
+`Function.Call()`, gowasm allocates a `callEngine` and starts invocation. This
 begins with jumping to machine code compiled from the Wasm binary. When that
 code makes a callback to the host, it exits execution, passing control back to
 `exec_native` which then calls a Go function and resumes the machine code
@@ -204,8 +204,8 @@ called a trampoline, and only used between the guest wasm and the host running
 it.
 
 [call-stack]: https://en.wikipedia.org/wiki/Call_stack
-[api-function]: https://pkg.go.dev/github.com/tetratelabs/wazero@v1.0.0-rc.1/api#Function
-[api-module]: https://pkg.go.dev/github.com/tetratelabs/wazero@v1.0.0-rc.1/api#Module
+[api-function]: https://pkg.go.dev/github.com/tetratelabs/gowasm@v1.0.0-rc.1/api#Function
+[api-module]: https://pkg.go.dev/github.com/tetratelabs/gowasm@v1.0.0-rc.1/api#Module
 [spec-function-instance]: https://www.w3.org/TR/2019/REC-wasm-core-1-20191205/#function-instances%E2%91%A0
 [spec-trap]: https://www.w3.org/TR/2019/REC-wasm-core-1-20191205/#trap
 [spec-unreachable]: https://www.w3.org/TR/2019/REC-wasm-core-1-20191205/#syntax-instr-control
@@ -213,4 +213,4 @@ it.
 [cgo-not-go]: https://www.youtube.com/watch?v=PAAkCSZUG1c&t=757s
 
 [^1]: it's technically possible to call it directly, but that would come with performing "stack switching" in the native code.
-  It's almost the same as what wazero does: exiting the execution of machine code, then call the target Go function (using the caller of machine code as a "trampoline").
+  It's almost the same as what gowasm does: exiting the execution of machine code, then call the target Go function (using the caller of machine code as a "trampoline").

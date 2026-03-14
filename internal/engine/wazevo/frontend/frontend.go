@@ -5,9 +5,9 @@ import (
 	"bytes"
 	"math"
 
-	"github.com/tetratelabs/wazero/internal/engine/wazevo/ssa"
-	"github.com/tetratelabs/wazero/internal/engine/wazevo/wazevoapi"
-	"github.com/tetratelabs/wazero/internal/wasm"
+	"github.com/topxeq/gowasm/internal/engine/wazevo/ssa"
+	"github.com/topxeq/gowasm/internal/engine/wazevo/wazevoapi"
+	"github.com/topxeq/gowasm/internal/wasm"
 )
 
 // Compiler is in charge of lowering Wasm to SSA IR, and does the optimization
@@ -261,8 +261,8 @@ func (c *Compiler) LowerToSSA() {
 	// TODO: maybe there's some way to do this optimization without glitches, but so far I have no clue about the feasibility.
 	//
 	// Note: In Wasmtime or many other runtimes, moduleContextPtr is called "vmContext". Also note that `moduleContextPtr`
-	//  is wazero-specific since other runtimes can naturally use the OS-level signal to do this job thanks to the fact that
-	//  they can use native stack vs wazero cannot use Go-routine stack and have to use Go-runtime allocated []byte as a stack.
+	//  is gowasm-specific since other runtimes can naturally use the OS-level signal to do this job thanks to the fact that
+	//  they can use native stack vs gowasm cannot use Go-routine stack and have to use Go-runtime allocated []byte as a stack.
 	c.execCtxPtrValue = entryBlock.AddParam(builder, executionContextPtrTyp)
 	c.moduleCtxPtrValue = entryBlock.AddParam(builder, moduleContextPtrTyp)
 	builder.AnnotateValue(c.execCtxPtrValue, "exec_ctx")

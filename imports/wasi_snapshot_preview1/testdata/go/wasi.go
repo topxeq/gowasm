@@ -132,7 +132,7 @@ func mainSock() error {
 	defer conn.Close()
 
 	// Do a blocking read of up to 32 bytes.
-	// Note: the test should write: "wazero", so that's all we should read.
+	// Note: the test should write: "gowasm", so that's all we should read.
 	var buf [32]byte
 	n, err := conn.Read(buf[:])
 	if err != nil {
@@ -235,7 +235,7 @@ type echoOnce struct {
 
 func (e echoOnce) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// Copy up to 32 bytes from the request to the response, appending a newline.
-	// Note: the test should write: "wazero", so that's all we should read.
+	// Note: the test should write: "gowasm", so that's all we should read.
 	var buf [32]byte
 	if n, err := r.Body.Read(buf[:]); err != nil && err != io.EOF {
 		panic(err)
@@ -246,7 +246,7 @@ func (e echoOnce) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	close(e.ch)
 }
 
-// Reproducer for https://github.com/tetratelabs/wazero/issues/1538
+// Reproducer for https://github.com/topxeq/gowasm/issues/1538
 func mainStdin() error {
 	go func() {
 		time.Sleep(1 * time.Second)

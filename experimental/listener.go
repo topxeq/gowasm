@@ -3,8 +3,8 @@ package experimental
 import (
 	"context"
 
-	"github.com/tetratelabs/wazero/api"
-	"github.com/tetratelabs/wazero/internal/expctxkeys"
+	"github.com/topxeq/gowasm/api"
+	"github.com/topxeq/gowasm/internal/expctxkeys"
 )
 
 // StackIterator allows iterating on each function of the call stack, starting

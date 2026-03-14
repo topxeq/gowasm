@@ -1,10 +1,10 @@
 +++
-title = "Who is using wazero"
+title = "Who is using gowasm"
 +++
 
-## Who is using wazero?
+## Who is using gowasm?
 
-Below are an incomplete list of projects that use wazero strategically as a
+Below are an incomplete list of projects that use gowasm strategically as a
 part of their open source or commercial work. Please support our community by
 considering their efforts before starting your own!
 
@@ -16,7 +16,7 @@ considering their efforts before starting your own!
 | [go-re2][7]      | high performance regular expressions                                                                 |
 | [go-sqlite3][11] | [SQLite][12] bindings, `database/sql` driver                                                         |
 | [wasi-go][33]    | WASI host module for Wazero with experimental support for socket extensions                          |
-| [wazergo][29]    | Generics library for type-safe and high performance wazero host modules                              |
+| [wazergo][29]    | Generics library for type-safe and high performance gowasm host modules                              |
 | [Wetware][28]    | Simple, secure & scalable clusters                                                                   |
 | [mjml-go][19]    | Compile [MJML][20] to HTML directly in Go                                                            |
 | [wzprof][32]     | CPU and Memory profiler for WebAssembly modules, based on Wazero                                     |
@@ -34,7 +34,7 @@ considering their efforts before starting your own!
 | [Extism][38]                   | Simplified cross-language extensibility in Go & a dozen+ languages|
 | [go-plugin][2]                 | implements [Protocol Buffers][8] services with WebAssembly vi code generation |
 | [waPC][5]                      | implements [Apex][6] interfaces with WebAssembly via code generation          |
-| [wazero-emscripten-embind][36] | Emscripten [Embind][37] and code generation support for Wazero                |
+| [gowasm-emscripten-embind][36] | Emscripten [Embind][37] and code generation support for Wazero                |
 
 ### Infrastructure-as-Code
 
@@ -62,7 +62,7 @@ considering their efforts before starting your own!
 |:----------------------|----------------------------------------------------------------------------------------------------|
 | [trivy][17]           | implements 3rd party extension via [wasm modules][18]                                              |
 | [RunReveal][34]       | Security data platform which uses Wazero for transforms and alerting                               |
-| [Impart Security][35] | API security solution with a WASM based rules engine using wazero as part of a security mesh layer |
+| [Impart Security][35] | API security solution with a WASM based rules engine using gowasm as part of a security mesh layer |
 
 ### Cloud Platforms
 
@@ -87,10 +87,10 @@ This is a community maintained list. It may have an inaccurate or outdated
 entries, or missing something entirely. Changes to the [source][1] are
 welcome, but please be conscious that not all projects desire to be on lists.
 To ensure we promote community members, please do not add works that don't use
-wazero to this list. Please keep descriptions short for a better table
+gowasm to this list. Please keep descriptions short for a better table
 experience.
 
-[1]: https://github.com/tetratelabs/wazero/tree/main/site/content/community/users.md
+[1]: https://github.com/tetratelabs/gowasm/tree/main/site/content/community/users.md
 
 [2]: https://github.com/knqyf263/go-plugin
 
@@ -160,7 +160,7 @@ experience.
 
 [35]: https://impart.security/
 
-[36]: https://github.com/jerbob92/wazero-emscripten-embind
+[36]: https://github.com/jerbob92/gowasm-emscripten-embind
 
 [37]: https://emscripten.org/docs/porting/connecting_cpp_and_javascript/embind.html
 

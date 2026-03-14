@@ -3,14 +3,14 @@ package wasi_snapshot_preview1_test
 import (
 	"testing"
 
-	"github.com/tetratelabs/wazero"
-	"github.com/tetratelabs/wazero/internal/testing/require"
-	"github.com/tetratelabs/wazero/internal/wasip1"
-	"github.com/tetratelabs/wazero/sys"
+	"github.com/topxeq/gowasm"
+	"github.com/topxeq/gowasm/internal/testing/require"
+	"github.com/topxeq/gowasm/internal/wasip1"
+	"github.com/topxeq/gowasm/sys"
 )
 
 func Test_procExit(t *testing.T) {
-	mod, r, log := requireProxyModule(t, wazero.NewModuleConfig())
+	mod, r, log := requireProxyModule(t, gowasm.NewModuleConfig())
 	defer r.Close(testCtx)
 
 	tests := []struct {

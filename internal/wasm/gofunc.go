@@ -8,7 +8,7 @@ import (
 	"math"
 	"reflect"
 
-	"github.com/tetratelabs/wazero/api"
+	"github.com/topxeq/gowasm/api"
 )
 
 type paramsKind byte
@@ -257,7 +257,7 @@ func kind(p reflect.Type) (paramsKind, error) {
 		}
 	}
 	// Without context param allows portability with reflective runtimes.
-	// This allows people to more easily port to wazero.
+	// This allows people to more easily port to gowasm.
 	return paramsKindNoContext, nil
 }
 

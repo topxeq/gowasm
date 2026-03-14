@@ -4,11 +4,11 @@ import (
 	"context"
 	"time"
 
-	"github.com/tetratelabs/wazero/api"
-	"github.com/tetratelabs/wazero/experimental/sys"
-	internalsys "github.com/tetratelabs/wazero/internal/sys"
-	"github.com/tetratelabs/wazero/internal/wasip1"
-	"github.com/tetratelabs/wazero/internal/wasm"
+	"github.com/topxeq/gowasm/api"
+	"github.com/topxeq/gowasm/experimental/sys"
+	internalsys "github.com/topxeq/gowasm/internal/sys"
+	"github.com/topxeq/gowasm/internal/wasip1"
+	"github.com/topxeq/gowasm/internal/wasm"
 )
 
 // pollOneoff is the WASI function named PollOneoffName that concurrently

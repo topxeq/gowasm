@@ -7,9 +7,9 @@ import (
 	"math"
 	"strings"
 
-	"github.com/tetratelabs/wazero/api"
-	"github.com/tetratelabs/wazero/internal/leb128"
-	"github.com/tetratelabs/wazero/internal/wasm"
+	"github.com/topxeq/gowasm/api"
+	"github.com/topxeq/gowasm/internal/leb128"
+	"github.com/topxeq/gowasm/internal/wasm"
 )
 
 type controlFrameKind byte

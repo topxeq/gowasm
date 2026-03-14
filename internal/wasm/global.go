@@ -1,8 +1,8 @@
 package wasm
 
 import (
-	"github.com/tetratelabs/wazero/api"
-	"github.com/tetratelabs/wazero/internal/internalapi"
+	"github.com/topxeq/gowasm/api"
+	"github.com/topxeq/gowasm/internal/internalapi"
 )
 
 // constantGlobal wraps GlobalInstance to implement api.Global.

@@ -1,21 +1,21 @@
-package wazero
+package gowasm
 
 import (
 	"context"
 	"fmt"
 	"sync/atomic"
 
-	"github.com/tetratelabs/wazero/api"
-	experimentalapi "github.com/tetratelabs/wazero/experimental"
-	"github.com/tetratelabs/wazero/internal/engine/interpreter"
-	"github.com/tetratelabs/wazero/internal/engine/wazevo"
-	"github.com/tetratelabs/wazero/internal/expctxkeys"
-	"github.com/tetratelabs/wazero/internal/platform"
-	internalsock "github.com/tetratelabs/wazero/internal/sock"
-	internalsys "github.com/tetratelabs/wazero/internal/sys"
-	"github.com/tetratelabs/wazero/internal/wasm"
-	binaryformat "github.com/tetratelabs/wazero/internal/wasm/binary"
-	"github.com/tetratelabs/wazero/sys"
+	"github.com/topxeq/gowasm/api"
+	experimentalapi "github.com/topxeq/gowasm/experimental"
+	"github.com/topxeq/gowasm/internal/engine/interpreter"
+	"github.com/topxeq/gowasm/internal/engine/wazevo"
+	"github.com/topxeq/gowasm/internal/expctxkeys"
+	"github.com/topxeq/gowasm/internal/platform"
+	internalsock "github.com/topxeq/gowasm/internal/sock"
+	internalsys "github.com/topxeq/gowasm/internal/sys"
+	"github.com/topxeq/gowasm/internal/wasm"
+	binaryformat "github.com/topxeq/gowasm/internal/wasm/binary"
+	"github.com/topxeq/gowasm/sys"
 )
 
 // Runtime allows embedding of WebAssembly modules.
@@ -23,7 +23,7 @@ import (
 // The below is an example of basic initialization:
 //
 //	ctx := context.Background()
-//	r := wazero.NewRuntime(ctx)
+//	r := gowasm.NewRuntime(ctx)
 //	defer r.Close(ctx) // This closes everything this Runtime created.
 //
 //	mod, _ := r.Instantiate(ctx, wasm)
@@ -31,7 +31,7 @@ import (
 // # Notes
 //
 //   - This is an interface for decoupling, not third-party implementations.
-//     All implementations are in wazero.
+//     All implementations are in gowasm.
 //   - Closing this closes any CompiledModule or Module it instantiated.
 type Runtime interface {
 	// Instantiate instantiates a module from the WebAssembly binary (%.wasm)
@@ -40,7 +40,7 @@ type Runtime interface {
 	//
 	// Here's an example:
 	//	ctx := context.Background()
-	//	r := wazero.NewRuntime(ctx)
+	//	r := gowasm.NewRuntime(ctx)
 	//	defer r.Close(ctx) // This closes everything this Runtime created.
 	//
 	//	mod, _ := r.Instantiate(ctx, wasm)
@@ -56,11 +56,11 @@ type Runtime interface {
 	//
 	// Here's an example:
 	//	ctx := context.Background()
-	//	r := wazero.NewRuntime(ctx)
+	//	r := gowasm.NewRuntime(ctx)
 	//	defer r.Close(ctx) // This closes everything this Runtime created.
 	//
 	//	mod, _ := r.InstantiateWithConfig(ctx, wasm,
-	//		wazero.NewModuleConfig().WithName("rotate"))
+	//		gowasm.NewModuleConfig().WithName("rotate"))
 	//
 	// # Notes
 	//
@@ -106,7 +106,7 @@ type Runtime interface {
 	// exit or validation.
 	//
 	// Here's an example:
-	//	mod, _ := n.InstantiateModule(ctx, compiled, wazero.NewModuleConfig().
+	//	mod, _ := n.InstantiateModule(ctx, compiled, gowasm.NewModuleConfig().
 	//		WithName("prod"))
 	//
 	// # Errors
@@ -128,7 +128,7 @@ type Runtime interface {
 	//
 	// Here's an example:
 	//	ctx := context.Background()
-	//	r := wazero.NewRuntime(ctx)
+	//	r := gowasm.NewRuntime(ctx)
 	//	defer r.CloseWithExitCode(ctx, 2) // This closes everything this Runtime created.
 	//
 	//	// Everything below here can be closed, but will anyway due to above.

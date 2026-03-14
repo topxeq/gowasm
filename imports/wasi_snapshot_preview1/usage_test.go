@@ -6,10 +6,10 @@ import (
 	_ "embed"
 	"testing"
 
-	"github.com/tetratelabs/wazero"
-	"github.com/tetratelabs/wazero/imports/wasi_snapshot_preview1"
-	"github.com/tetratelabs/wazero/internal/fstest"
-	"github.com/tetratelabs/wazero/internal/testing/require"
+	"github.com/topxeq/gowasm"
+	"github.com/topxeq/gowasm/imports/wasi_snapshot_preview1"
+	"github.com/topxeq/gowasm/internal/fstest"
+	"github.com/topxeq/gowasm/internal/testing/require"
 )
 
 // pringArgsWasm was compiled from testdata/wasi_arg.wat
@@ -20,13 +20,13 @@ var pringArgsWasm []byte
 func TestInstantiateModule(t *testing.T) {
 	ctx := context.Background()
 
-	r := wazero.NewRuntime(ctx)
+	r := gowasm.NewRuntime(ctx)
 	defer r.Close(ctx)
 
 	var stdout bytes.Buffer
 
 	// Configure WASI to write stdout to a buffer, so that we can verify it later.
-	sys := wazero.NewModuleConfig().WithStdout(&stdout)
+	sys := gowasm.NewModuleConfig().WithStdout(&stdout)
 	wasi_snapshot_preview1.MustInstantiate(ctx, r)
 
 	compiled, err := r.CompileModule(ctx, pringArgsWasm)
@@ -57,17 +57,17 @@ var printPrestatDirname []byte
 func TestInstantiateModule_Prestat(t *testing.T) {
 	ctx := context.Background()
 
-	r := wazero.NewRuntime(ctx)
+	r := gowasm.NewRuntime(ctx)
 	defer r.Close(ctx)
 
 	var stdout bytes.Buffer
 
 	wasi_snapshot_preview1.MustInstantiate(ctx, r)
 
-	_, err := r.InstantiateWithConfig(ctx, printPrestatDirname, wazero.NewModuleConfig().
+	_, err := r.InstantiateWithConfig(ctx, printPrestatDirname, gowasm.NewModuleConfig().
 		WithStdout(&stdout).
-		WithFSConfig(wazero.NewFSConfig().WithFSMount(fstest.FS, "/wazero")))
+		WithFSConfig(gowasm.NewFSConfig().WithFSMount(fstest.FS, "/gowasm")))
 	require.NoError(t, err)
 
-	require.Equal(t, "/wazero", stdout.String())
+	require.Equal(t, "/gowasm", stdout.String())
 }

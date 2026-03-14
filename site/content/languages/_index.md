@@ -15,13 +15,13 @@ e.g. If your source is in Go, you might compile it with TinyGo.
   '-----+-----'      '----------------------'    '-----------'
 ```
 
-Below are notes wazero contributed so far, in alphabetical order by language.
+Below are notes gowasm contributed so far, in alphabetical order by language.
 
 * [TinyGo]({{< relref "/tinygo.md" >}}) e.g. `tinygo build -o X.wasm -target=wasi X.go`
 * [Rust]({{< relref "/rust.md" >}}) e.g. `rustc -o X.wasm --target wasm32-wasi X.rs`
 * [Zig]({{< relref "/zig.md" >}}) e.g. `zig build-exe X.zig -target wasm32-wasi`
 
-wazero is a runtime that embeds in Go applications, not a web browser. As
+gowasm is a runtime that embeds in Go applications, not a web browser. As
 such, these notes bias towards backend use of WebAssembly, not browser use.
 
 Disclaimer: These are not official documentation, nor represent the teams who
@@ -59,7 +59,7 @@ extreme cases, constraints or support concerns may lead developers to choose
 newer languages like [Zig][10].
 
 Regardless of the programming language used, the best advice is to unit test
-your code, and run tests with your intended WebAssembly runtime, like wazero.
+your code, and run tests with your intended WebAssembly runtime, like gowasm.
 
 These tests should cover the critical paths of your code, including errors.
 Doing so protects your time. You'll have higher confidence, and more efficient
@@ -107,7 +107,7 @@ a `_start` function corresponding to `main` in the original source code. When
 the WebAssembly runtime calls `_start`, it remains on the same thread of
 execution until that function completes.
 
-Concretely, if using wazero, a Wasm function call remains on the calling
+Concretely, if using gowasm, a Wasm function call remains on the calling
 goroutine until it completes.
 
 In summary, while true that host functions can do anything, including launch
@@ -143,8 +143,8 @@ used sequentially.
 For example, [waPC][9] provides a WASM module pool, so host callbacks can be
 invoked in parallel, despite not being able to share memory.
 
-[1]: https://github.com/tetratelabs/wazero/tree/main/site/content/languages
-[2]: https://github.com/tetratelabs/wazero/stargazers
+[1]: https://github.com/tetratelabs/gowasm/tree/main/site/content/languages
+[2]: https://github.com/tetratelabs/gowasm/stargazers
 [3]: https://pubs.opengroup.org/onlinepubs/9699919799/basedefs/contents.html
 [4]: https://github.com/WebAssembly/wasi-libc
 [5]: https://github.com/WebAssembly/threads

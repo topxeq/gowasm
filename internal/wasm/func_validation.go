@@ -8,12 +8,12 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/tetratelabs/wazero/api"
-	"github.com/tetratelabs/wazero/experimental"
-	"github.com/tetratelabs/wazero/internal/leb128"
+	"github.com/topxeq/gowasm/api"
+	"github.com/topxeq/gowasm/experimental"
+	"github.com/topxeq/gowasm/internal/leb128"
 )
 
-// The wazero specific limitation described at RATIONALE.md.
+// The gowasm specific limitation described at RATIONALE.md.
 const maximumValuesOnStack = 1 << 27
 
 // validateFunction validates the instruction sequence of a function.

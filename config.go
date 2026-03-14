@@ -1,4 +1,4 @@
-package wazero
+package gowasm
 
 import (
 	"context"
@@ -10,15 +10,15 @@ import (
 	"net"
 	"time"
 
-	"github.com/tetratelabs/wazero/api"
-	experimentalsys "github.com/tetratelabs/wazero/experimental/sys"
-	"github.com/tetratelabs/wazero/internal/filecache"
-	"github.com/tetratelabs/wazero/internal/internalapi"
-	"github.com/tetratelabs/wazero/internal/platform"
-	internalsock "github.com/tetratelabs/wazero/internal/sock"
-	internalsys "github.com/tetratelabs/wazero/internal/sys"
-	"github.com/tetratelabs/wazero/internal/wasm"
-	"github.com/tetratelabs/wazero/sys"
+	"github.com/topxeq/gowasm/api"
+	experimentalsys "github.com/topxeq/gowasm/experimental/sys"
+	"github.com/topxeq/gowasm/internal/filecache"
+	"github.com/topxeq/gowasm/internal/internalapi"
+	"github.com/topxeq/gowasm/internal/platform"
+	internalsock "github.com/topxeq/gowasm/internal/sock"
+	internalsys "github.com/topxeq/gowasm/internal/sys"
+	"github.com/topxeq/gowasm/internal/wasm"
+	"github.com/topxeq/gowasm/sys"
 )
 
 // RuntimeConfig controls runtime behavior, with the default implementation as
@@ -27,12 +27,12 @@ import (
 // The example below explicitly limits to Wasm Core 1.0 features as opposed to
 // relying on defaults:
 //
-//	rConfig = wazero.NewRuntimeConfig().WithCoreFeatures(api.CoreFeaturesV1)
+//	rConfig = gowasm.NewRuntimeConfig().WithCoreFeatures(api.CoreFeaturesV1)
 //
 // # Notes
 //
 //   - This is an interface for decoupling, not third-party implementations.
-//     All implementations are in wazero.
+//     All implementations are in gowasm.
 //   - RuntimeConfig is immutable. Each WithXXX function returns a new instance
 //     including the corresponding change.
 type RuntimeConfig interface {
@@ -41,13 +41,13 @@ type RuntimeConfig interface {
 	//
 	// Example of disabling a specific feature:
 	//	features := api.CoreFeaturesV2.SetEnabled(api.CoreFeatureMutableGlobal, false)
-	//	rConfig = wazero.NewRuntimeConfig().WithCoreFeatures(features)
+	//	rConfig = gowasm.NewRuntimeConfig().WithCoreFeatures(features)
 	//
 	// # Why default to version 2.0?
 	//
 	// Many compilers that target WebAssembly require features after
 	// api.CoreFeaturesV1 by default. For example, TinyGo v0.24+ requires
-	// api.CoreFeatureBulkMemoryOperations. To avoid runtime errors, wazero
+	// api.CoreFeatureBulkMemoryOperations. To avoid runtime errors, gowasm
 	// defaults to api.CoreFeaturesV2, even though it is not yet a Web
 	// Standard (REC).
 	WithCoreFeatures(api.CoreFeatures) RuntimeConfig
@@ -57,7 +57,7 @@ type RuntimeConfig interface {
 	// not encoded in a Wasm binary. Setting a value larger than default will panic.
 	//
 	// This example reduces the largest possible memory size from 4GB to 128KB:
-	//	rConfig = wazero.NewRuntimeConfig().WithMemoryLimitPages(2)
+	//	rConfig = gowasm.NewRuntimeConfig().WithMemoryLimitPages(2)
 	//
 	// Note: Wasm has 32-bit memory and each page is 65536 (2^16) bytes. This
 	// implies a max of 65536 (2^16) addressable pages.
@@ -69,7 +69,7 @@ type RuntimeConfig interface {
 	// allocated and any call to grow memory results in re-allocations.
 	//
 	// This example ensures any memory.grow instruction will never re-allocate:
-	//	rConfig = wazero.NewRuntimeConfig().WithMemoryCapacityFromMax(true)
+	//	rConfig = gowasm.NewRuntimeConfig().WithMemoryCapacityFromMax(true)
 	//
 	// See https://www.w3.org/TR/2019/REC-wasm-core-1-20191205/#grow-mem
 	//
@@ -82,7 +82,7 @@ type RuntimeConfig interface {
 	//
 	// Those who wish to disable this, can like so:
 	//
-	//	r := wazero.NewRuntimeWithConfig(wazero.NewRuntimeConfig().WithDebugInfoEnabled(false)
+	//	r := gowasm.NewRuntimeWithConfig(gowasm.NewRuntimeConfig().WithDebugInfoEnabled(false)
 	//
 	// When disabled, a stack trace message looks like:
 	//
@@ -99,9 +99,9 @@ type RuntimeConfig interface {
 	//		.runtime._panic(i32)
 	//		  0x16e2: /opt/homebrew/Cellar/tinygo/0.26.0/src/runtime/runtime_tinygowasm.go:73:6
 	//		.myFunc()
-	//		  0x190b: /Users/XXXXX/wazero/internal/testing/dwarftestdata/testdata/main.go:19:7
+	//		  0x190b: /Users/XXXXX/gowasm/internal/testing/dwarftestdata/testdata/main.go:19:7
 	//		.main.main()
-	//		  0x18ed: /Users/XXXXX/wazero/internal/testing/dwarftestdata/testdata/main.go:4:3
+	//		  0x18ed: /Users/XXXXX/gowasm/internal/testing/dwarftestdata/testdata/main.go:4:3
 	//		.runtime.run()
 	//		  0x18cc: /opt/homebrew/Cellar/tinygo/0.26.0/src/runtime/scheduler_none.go:26:10
 	//		._start()
@@ -118,30 +118,30 @@ type RuntimeConfig interface {
 	// Below defines the shared cache across multiple instances of Runtime:
 	//
 	//	// Creates the new Cache and the runtime configuration with it.
-	//	cache := wazero.NewCompilationCache()
+	//	cache := gowasm.NewCompilationCache()
 	//	defer cache.Close()
-	//	config := wazero.NewRuntimeConfig().WithCompilationCache(c)
+	//	config := gowasm.NewRuntimeConfig().WithCompilationCache(c)
 	//
 	//	// Creates two runtimes while sharing compilation caches.
-	//	foo := wazero.NewRuntimeWithConfig(context.Background(), config)
-	// 	bar := wazero.NewRuntimeWithConfig(context.Background(), config)
+	//	foo := gowasm.NewRuntimeWithConfig(context.Background(), config)
+	// 	bar := gowasm.NewRuntimeWithConfig(context.Background(), config)
 	//
 	// # Cache Key
 	//
-	// Cached files are keyed on the version of wazero. This is obtained from go.mod of your application,
-	// and we use it to verify the compatibility of caches against the currently-running wazero.
-	// However, if you use this in tests of a package not named as `main`, then wazero cannot obtain the correct
-	// version of wazero due to the known issue of debug.BuildInfo function: https://github.com/golang/go/issues/33976.
+	// Cached files are keyed on the version of gowasm. This is obtained from go.mod of your application,
+	// and we use it to verify the compatibility of caches against the currently-running gowasm.
+	// However, if you use this in tests of a package not named as `main`, then gowasm cannot obtain the correct
+	// version of gowasm due to the known issue of debug.BuildInfo function: https://github.com/golang/go/issues/33976.
 	// As a consequence, your cache won't contain the correct version information and always be treated as `dev` version.
-	// To avoid this issue, you can pass -ldflags "-X github.com/tetratelabs/wazero/internal/version.version=foo" when running tests.
+	// To avoid this issue, you can pass -ldflags "-X github.com/topxeq/gowasm/internal/version.version=foo" when running tests.
 	WithCompilationCache(CompilationCache) RuntimeConfig
 
 	// WithCustomSections toggles parsing of "custom sections". Defaults to false.
 	//
 	// When enabled, it is possible to retrieve custom sections from a CompiledModule:
 	//
-	//	config := wazero.NewRuntimeConfig().WithCustomSections(true)
-	//	r := wazero.NewRuntimeWithConfig(ctx, config)
+	//	config := gowasm.NewRuntimeConfig().WithCustomSections(true)
+	//	r := gowasm.NewRuntimeWithConfig(ctx, config)
 	//	c, err := r.CompileModule(ctx, wasm)
 	//	customSections := c.CustomSections()
 	WithCustomSections(bool) RuntimeConfig
@@ -217,7 +217,7 @@ const (
 // the ability to reduce any first request penalty.
 //
 // Note: While this is technically AOT, this does not imply any action on your
-// part. wazero automatically performs ahead-of-time compilation as needed when
+// part. gowasm automatically performs ahead-of-time compilation as needed when
 // Runtime.CompileModule is invoked.
 //
 // # Warning
@@ -226,12 +226,12 @@ const (
 //     support compiler. Use NewRuntimeConfig to safely detect and fallback to
 //     NewRuntimeConfigInterpreter if needed.
 //
-//   - If you are using wazero in buildmode=c-archive or c-shared, make sure that you set up the alternate signal stack
+//   - If you are using gowasm in buildmode=c-archive or c-shared, make sure that you set up the alternate signal stack
 //     by using, e.g. `sigaltstack` combined with `SA_ONSTACK` flag on `sigaction` on Linux,
 //     before calling any api.Function. This is because the Go runtime does not set up the alternate signal stack
-//     for c-archive or c-shared modes, and wazero uses the different stack than the calling Goroutine.
-//     Hence, the signal handler might get invoked on the wazero's stack, which may cause a stack overflow.
-//     https://github.com/tetratelabs/wazero/blob/2092c0a879f30d49d7b37f333f4547574b8afe0d/internal/integration_test/fuzz/fuzz/tests/sigstack.rs#L19-L36
+//     for c-archive or c-shared modes, and gowasm uses the different stack than the calling Goroutine.
+//     Hence, the signal handler might get invoked on the gowasm's stack, which may cause a stack overflow.
+//     https://github.com/topxeq/gowasm/blob/2092c0a879f30d49d7b37f333f4547574b8afe0d/internal/integration_test/fuzz/fuzz/tests/sigstack.rs#L19-L36
 func NewRuntimeConfigCompiler() RuntimeConfig {
 	ret := engineLessConfig.clone()
 	ret.engineKind = engineKindCompiler
@@ -306,15 +306,15 @@ func (c *runtimeConfig) WithCustomSections(storeCustomSections bool) RuntimeConf
 
 // CompiledModule is a WebAssembly module ready to be instantiated (Runtime.InstantiateModule) as an api.Module.
 //
-// In WebAssembly terminology, this is a decoded, validated, and possibly also compiled module. wazero avoids using
+// In WebAssembly terminology, this is a decoded, validated, and possibly also compiled module. gowasm avoids using
 // the name "Module" for both before and after instantiation as the name conflation has caused confusion.
 // See https://www.w3.org/TR/2019/REC-wasm-core-1-20191205/#semantic-phases%E2%91%A0
 //
 // # Notes
 //
 //   - This is an interface for decoupling, not third-party implementations.
-//     All implementations are in wazero.
-//   - Closing the wazero.Runtime closes any CompiledModule it compiled.
+//     All implementations are in gowasm.
+//   - Closing the gowasm.Runtime closes any CompiledModule it compiled.
 type CompiledModule interface {
 	// Name returns the module name encoded into the binary or empty if not.
 	Name() string
@@ -437,18 +437,18 @@ func (c *customSection) Data() []byte {
 // Here's an example:
 //
 //	// Initialize base configuration:
-//	config := wazero.NewModuleConfig().WithStdout(buf).WithSysNanotime()
+//	config := gowasm.NewModuleConfig().WithStdout(buf).WithSysNanotime()
 //
 //	// Assign different configuration on each instantiation
 //	mod, _ := r.InstantiateModule(ctx, compiled, config.WithName("rotate").WithArgs("rotate", "angle=90", "dir=cw"))
 //
-// While wazero supports Windows as a platform, host functions using ModuleConfig follow a UNIX dialect.
+// While gowasm supports Windows as a platform, host functions using ModuleConfig follow a UNIX dialect.
 // See RATIONALE.md for design background and relationship to WebAssembly System Interfaces (WASI).
 //
 // # Notes
 //
 //   - This is an interface for decoupling, not third-party implementations.
-//     All implementations are in wazero.
+//     All implementations are in gowasm.
 //   - ModuleConfig is immutable. Each WithXXX function returns a new instance
 //     including the corresponding change.
 type ModuleConfig interface {
@@ -501,7 +501,7 @@ type ModuleConfig interface {
 	//
 	// 	for i := 0; i < N; i++ {
 	//		// Instantiate a new Wasm module from the already compiled `compiledWasm` anonymously without a name.
-	//		instance, err := r.InstantiateModule(ctx, compiledWasm, wazero.NewModuleConfig().WithName(""))
+	//		instance, err := r.InstantiateModule(ctx, compiledWasm, gowasm.NewModuleConfig().WithName(""))
 	//		// ....
 	//	}
 	//

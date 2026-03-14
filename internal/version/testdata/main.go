@@ -1,6 +1,6 @@
 package main
 
-// Force importing wazero here, so that we can see the actual wazero version in the main_test.go.
+// Force importing gowasm here, so that we can see the actual gowasm version in the main_test.go.
 import (
-	_ "github.com/tetratelabs/wazero/internal/version"
+	_ "github.com/topxeq/gowasm/internal/version"
 )

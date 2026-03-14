@@ -1,13 +1,13 @@
 package proxy
 
 import (
-	"github.com/tetratelabs/wazero"
-	"github.com/tetratelabs/wazero/api"
-	"github.com/tetratelabs/wazero/experimental"
-	"github.com/tetratelabs/wazero/experimental/logging"
-	"github.com/tetratelabs/wazero/internal/leb128"
-	"github.com/tetratelabs/wazero/internal/testing/binaryencoding"
-	"github.com/tetratelabs/wazero/internal/wasm"
+	"github.com/topxeq/gowasm"
+	"github.com/topxeq/gowasm/api"
+	"github.com/topxeq/gowasm/experimental"
+	"github.com/topxeq/gowasm/experimental/logging"
+	"github.com/topxeq/gowasm/internal/leb128"
+	"github.com/topxeq/gowasm/internal/testing/binaryencoding"
+	"github.com/topxeq/gowasm/internal/wasm"
 )
 
 const proxyModuleName = "internal/testing/proxy/proxy.go"
@@ -38,7 +38,7 @@ func (f *loggingListenerFactory) NewFunctionListener(fnd api.FunctionDefinition)
 //
 // This is used to test host call implementations. If logging, use
 // NewLoggingListenerFactory to avoid messages from the proxying module.
-func NewModuleBinary(moduleName string, proxyTarget wazero.CompiledModule) []byte {
+func NewModuleBinary(moduleName string, proxyTarget gowasm.CompiledModule) []byte {
 	funcDefs := proxyTarget.ExportedFunctions()
 	funcNum := uint32(len(funcDefs))
 	proxyModule := &wasm.Module{

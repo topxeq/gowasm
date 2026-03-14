@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"math"
 
-	"github.com/tetratelabs/wazero/internal/internalapi"
+	"github.com/topxeq/gowasm/internal/internalapi"
 )
 
 // ExternType classifies imports and exports with their respective types.
@@ -92,9 +92,9 @@ const (
 
 	// ValueTypeExternref is a externref type.
 	//
-	// Note: in wazero, externref type value are opaque raw 64-bit pointers,
+	// Note: in gowasm, externref type value are opaque raw 64-bit pointers,
 	// and the ValueTypeExternref type in the signature will be translated as
-	// uintptr in wazero's API level.
+	// uintptr in gowasm's API level.
 	//
 	// For example, given the import function:
 	//	(func (import "env" "f") (param externref) (result externref))
@@ -131,15 +131,15 @@ func ValueTypeName(t ValueType) string {
 
 // Module is a sandboxed, ready to execute Wasm module. This can be used to get exported functions, etc.
 //
-// In WebAssembly terminology, this corresponds to a "Module Instance", but wazero calls pre-instantiation module as
-// "Compiled Module" as in wazero.CompiledModule, therefore we call this post-instantiation module simply "Module".
+// In WebAssembly terminology, this corresponds to a "Module Instance", but gowasm calls pre-instantiation module as
+// "Compiled Module" as in gowasm.CompiledModule, therefore we call this post-instantiation module simply "Module".
 // See https://www.w3.org/TR/2019/REC-wasm-core-1-20191205/#module-instances%E2%91%A0
 //
 // # Notes
 //
 //   - This is an interface for decoupling, not third-party implementations.
-//     All implementations are in wazero.
-//   - Closing the wazero.Runtime closes any Module it instantiated.
+//     All implementations are in gowasm.
+//   - Closing the gowasm.Runtime closes any Module it instantiated.
 type Module interface {
 	fmt.Stringer
 
@@ -152,7 +152,7 @@ type Module interface {
 	// ExportedFunction returns a function exported from this module or nil if it wasn't.
 	//
 	// # Notes
-	//   - The default wazero.ModuleConfig attempts to invoke `_start`, which
+	//   - The default gowasm.ModuleConfig attempts to invoke `_start`, which
 	//     in rare cases can close the module. When in doubt, check IsClosed prior
 	//     to invoking a function export after instantiation.
 	//   - The semantics of host functions assumes the existence of an "importing module" because, for example, the host function needs access to
@@ -204,7 +204,7 @@ type Module interface {
 	//   - Closer was called directly.
 	//   - A guest function called Closer indirectly, such as `_start` calling
 	//     `proc_exit`, which internally closed the module.
-	//   - wazero.RuntimeConfig `WithCloseOnContextDone` was enabled and a
+	//   - gowasm.RuntimeConfig `WithCloseOnContextDone` was enabled and a
 	//     context completion closed the module.
 	//
 	// Where any of the above are possible, check this value before calling an
@@ -221,7 +221,7 @@ type Module interface {
 // # Notes
 //
 //   - This is an interface for decoupling, not third-party implementations.
-//     All implementations are in wazero.
+//     All implementations are in gowasm.
 type Closer interface {
 	// Close closes the resource.
 	//
@@ -232,14 +232,14 @@ type Closer interface {
 }
 
 // ExportDefinition is a WebAssembly type exported in a module
-// (wazero.CompiledModule).
+// (gowasm.CompiledModule).
 //
 // See https://www.w3.org/TR/2019/REC-wasm-core-1-20191205/#exports%E2%91%A0
 //
 // # Notes
 //
 //   - This is an interface for decoupling, not third-party implementations.
-//     All implementations are in wazero.
+//     All implementations are in gowasm.
 type ExportDefinition interface {
 	// ModuleName is the possibly empty name of the module defining this
 	// export.
@@ -268,14 +268,14 @@ type ExportDefinition interface {
 }
 
 // MemoryDefinition is a WebAssembly memory exported in a module
-// (wazero.CompiledModule). Units are in pages (64KB).
+// (gowasm.CompiledModule). Units are in pages (64KB).
 //
 // See https://www.w3.org/TR/2019/REC-wasm-core-1-20191205/#exports%E2%91%A0
 //
 // # Notes
 //
 //   - This is an interface for decoupling, not third-party implementations.
-//     All implementations are in wazero.
+//     All implementations are in gowasm.
 type MemoryDefinition interface {
 	ExportDefinition
 
@@ -290,14 +290,14 @@ type MemoryDefinition interface {
 }
 
 // FunctionDefinition is a WebAssembly function exported in a module
-// (wazero.CompiledModule).
+// (gowasm.CompiledModule).
 //
 // See https://www.w3.org/TR/2019/REC-wasm-core-1-20191205/#exports%E2%91%A0
 //
 // # Notes
 //
 //   - This is an interface for decoupling, not third-party implementations.
-//     All implementations are in wazero.
+//     All implementations are in gowasm.
 type FunctionDefinition interface {
 	ExportDefinition
 
@@ -323,7 +323,7 @@ type FunctionDefinition interface {
 	DebugName() string
 
 	// GoFunction is non-nil when implemented by the embedder instead of a wasm
-	// binary, e.g. via wazero.HostModuleBuilder
+	// binary, e.g. via gowasm.HostModuleBuilder
 	//
 	// The expected results are nil, GoFunction or GoModuleFunction.
 	GoFunction() interface{}
@@ -354,14 +354,14 @@ type FunctionDefinition interface {
 }
 
 // Function is a WebAssembly function exported from an instantiated module
-// (wazero.Runtime InstantiateModule).
+// (gowasm.Runtime InstantiateModule).
 //
 // See https://www.w3.org/TR/2019/REC-wasm-core-1-20191205/#syntax-func
 //
 // # Notes
 //
 //   - This is an interface for decoupling, not third-party implementations.
-//     All implementations are in wazero.
+//     All implementations are in gowasm.
 type Function interface {
 	// Definition is metadata about this function from its defining module.
 	Definition() FunctionDefinition
@@ -386,7 +386,7 @@ type Function interface {
 	// When RuntimeConfig.WithCloseOnContextDone is toggled, the invocation of this Call method is ensured to be closed
 	// whenever one of the three conditions is met. In the event of close, sys.ExitError will be returned and
 	// the api.Module from which this api.Function is derived will be made closed. See the documentation of
-	// WithCloseOnContextDone on wazero.RuntimeConfig for detail. See examples in context_done_example_test.go for
+	// WithCloseOnContextDone on gowasm.RuntimeConfig for detail. See examples in context_done_example_test.go for
 	// the end-to-end demonstrations of how these terminations can be performed.
 	Call(ctx context.Context, params ...uint64) ([]uint64, error)
 
@@ -499,7 +499,7 @@ func (f GoFunc) Call(ctx context.Context, stack []uint64) {
 	f(ctx, stack)
 }
 
-// Global is a WebAssembly 1.0 (20191205) global exported from an instantiated module (wazero.Runtime InstantiateModule).
+// Global is a WebAssembly 1.0 (20191205) global exported from an instantiated module (gowasm.Runtime InstantiateModule).
 //
 // For example, if the value is not mutable, you can read it once:
 //
@@ -520,7 +520,7 @@ func (f GoFunc) Call(ctx context.Context, stack []uint64) {
 // # Notes
 //
 //   - This is an interface for decoupling, not third-party implementations.
-//     All implementations are in wazero.
+//     All implementations are in gowasm.
 type Global interface {
 	fmt.Stringer
 
@@ -538,7 +538,7 @@ type Global interface {
 // # Notes
 //
 //   - This is an interface for decoupling, not third-party implementations.
-//     All implementations are in wazero.
+//     All implementations are in gowasm.
 type MutableGlobal interface {
 	Global
 
@@ -557,7 +557,7 @@ type MutableGlobal interface {
 // # Notes
 //
 //   - This is an interface for decoupling, not third-party implementations.
-//     All implementations are in wazero.
+//     All implementations are in gowasm.
 //   - This includes all value types available in WebAssembly 1.0 (20191205) and all are encoded little-endian.
 type Memory interface {
 	// Definition is metadata about this memory from its defining module.
@@ -569,7 +569,7 @@ type Memory interface {
 	// # Notes
 	//
 	//   - This overflows (returns zero) if the memory has the maximum 65536 pages.
-	// 	   As a workaround until wazero v2 to fix the return type, use Grow(0) to obtain the current pages and
+	// 	   As a workaround until gowasm v2 to fix the return type, use Grow(0) to obtain the current pages and
 	//     multiply by 65536.
 	//
 	// See https://www.w3.org/TR/2019/REC-wasm-core-1-20191205/#-hrefsyntax-instr-memorymathsfmemorysize%E2%91%A0
@@ -643,7 +643,7 @@ type Memory interface {
 	// shared. The same exists Wasm side. For example, if Wasm changes its
 	// memory capacity, ex via "memory.grow"), the host slice is no longer
 	// shared. Those who need a stable view must set Wasm memory min=max, or
-	// use wazero.RuntimeConfig WithMemoryCapacityPages to ensure max is always
+	// use gowasm.RuntimeConfig WithMemoryCapacityPages to ensure max is always
 	// allocated.
 	Read(offset, byteCount uint32) ([]byte, bool)
 
@@ -688,7 +688,7 @@ type Memory interface {
 // # Notes
 //
 //   - This is an interface for decoupling, not third-party implementations.
-//     All implementations are in wazero.
+//     All implementations are in gowasm.
 type CustomSection interface {
 	// Name is the name of the custom section
 	Name() string

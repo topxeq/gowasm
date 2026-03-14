@@ -7,13 +7,13 @@ import (
 	"testing"
 	"testing/iotest"
 
-	"github.com/tetratelabs/wazero"
-	"github.com/tetratelabs/wazero/internal/testing/require"
-	"github.com/tetratelabs/wazero/internal/wasip1"
+	"github.com/topxeq/gowasm"
+	"github.com/topxeq/gowasm/internal/testing/require"
+	"github.com/topxeq/gowasm/internal/wasip1"
 )
 
 func Test_randomGet(t *testing.T) {
-	mod, r, log := requireProxyModule(t, wazero.NewModuleConfig())
+	mod, r, log := requireProxyModule(t, gowasm.NewModuleConfig())
 	defer r.Close(testCtx)
 
 	expectedMemory := []byte{
@@ -40,7 +40,7 @@ func Test_randomGet(t *testing.T) {
 }
 
 func Test_randomGet_Errors(t *testing.T) {
-	mod, r, log := requireProxyModule(t, wazero.NewModuleConfig())
+	mod, r, log := requireProxyModule(t, gowasm.NewModuleConfig())
 	defer r.Close(testCtx)
 
 	memorySize := mod.Memory().Size()
@@ -109,7 +109,7 @@ func Test_randomGet_SourceError(t *testing.T) {
 	for _, tt := range tests {
 		tc := tt
 		t.Run(tc.name, func(t *testing.T) {
-			mod, r, log := requireProxyModule(t, wazero.NewModuleConfig().
+			mod, r, log := requireProxyModule(t, gowasm.NewModuleConfig().
 				WithRandSource(tc.randSource))
 			defer r.Close(testCtx)
 

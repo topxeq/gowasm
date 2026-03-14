@@ -7,18 +7,18 @@ import (
 	"testing"
 	"time"
 
-	"github.com/tetratelabs/wazero"
-	"github.com/tetratelabs/wazero/api"
-	experimentalsys "github.com/tetratelabs/wazero/experimental/sys"
-	"github.com/tetratelabs/wazero/internal/sys"
-	"github.com/tetratelabs/wazero/internal/testing/require"
-	"github.com/tetratelabs/wazero/internal/wasip1"
-	"github.com/tetratelabs/wazero/internal/wasm"
-	sysapi "github.com/tetratelabs/wazero/sys"
+	"github.com/topxeq/gowasm"
+	"github.com/topxeq/gowasm/api"
+	experimentalsys "github.com/topxeq/gowasm/experimental/sys"
+	"github.com/topxeq/gowasm/internal/sys"
+	"github.com/topxeq/gowasm/internal/testing/require"
+	"github.com/topxeq/gowasm/internal/wasip1"
+	"github.com/topxeq/gowasm/internal/wasm"
+	sysapi "github.com/topxeq/gowasm/sys"
 )
 
 func Test_pollOneoff(t *testing.T) {
-	mod, r, log := requireProxyModule(t, wazero.NewModuleConfig())
+	mod, r, log := requireProxyModule(t, gowasm.NewModuleConfig())
 	defer r.Close(testCtx)
 
 	mem := []byte{
@@ -64,7 +64,7 @@ func Test_pollOneoff(t *testing.T) {
 }
 
 func Test_pollOneoff_Errors(t *testing.T) {
-	mod, r, log := requireProxyModule(t, wazero.NewModuleConfig())
+	mod, r, log := requireProxyModule(t, gowasm.NewModuleConfig())
 	defer r.Close(testCtx)
 
 	tests := []struct {
@@ -155,7 +155,7 @@ func Test_pollOneoff_Stdin(t *testing.T) {
 	require.NoError(t, err)
 	defer w.Close()
 	defer r.Close()
-	_, _ = w.Write([]byte("wazero"))
+	_, _ = w.Write([]byte("gowasm"))
 
 	tests := []struct {
 		name                                   string
@@ -412,7 +412,7 @@ func Test_pollOneoff_Stdin(t *testing.T) {
 	for _, tt := range tests {
 		tc := tt
 		t.Run(tc.name, func(t *testing.T) {
-			mod, r, log := requireProxyModule(t, wazero.NewModuleConfig())
+			mod, r, log := requireProxyModule(t, gowasm.NewModuleConfig())
 			defer r.Close(testCtx)
 			defer log.Reset()
 
@@ -452,7 +452,7 @@ func setStdin(t *testing.T, mod api.Module, stdin experimentalsys.File) {
 func Test_pollOneoff_Zero(t *testing.T) {
 	poller := &pollStdinFile{StdinFile: sys.StdinFile{Reader: strings.NewReader("test")}, ready: true}
 
-	mod, r, log := requireProxyModule(t, wazero.NewModuleConfig())
+	mod, r, log := requireProxyModule(t, gowasm.NewModuleConfig())
 	defer r.Close(testCtx)
 	defer log.Reset()
 

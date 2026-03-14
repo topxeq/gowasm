@@ -1,10 +1,10 @@
-package wazero
+package gowasm
 
 import (
 	"context"
 
-	"github.com/tetratelabs/wazero/api"
-	"github.com/tetratelabs/wazero/internal/wasm"
+	"github.com/topxeq/gowasm/api"
+	"github.com/topxeq/gowasm/internal/wasm"
 )
 
 // HostFunctionBuilder defines a host function (in Go), so that a
@@ -36,7 +36,7 @@ import (
 // # Notes
 //
 //   - This is an interface for decoupling, not third-party implementations.
-//     All implementations are in wazero.
+//     All implementations are in gowasm.
 type HostFunctionBuilder interface {
 	// WithGoFunction is an advanced feature for those who need higher
 	// performance than WithFunc at the cost of more complexity.
@@ -147,7 +147,7 @@ type HostFunctionBuilder interface {
 // function:
 //
 //	ctx := context.Background()
-//	r := wazero.NewRuntime(ctx)
+//	r := gowasm.NewRuntime(ctx)
 //	defer r.Close(ctx) // This closes everything this Runtime created.
 //
 //	hello := func() {
@@ -164,15 +164,15 @@ type HostFunctionBuilder interface {
 //		NewFunctionBuilder().WithFunc(getRandomString).Export("get_random_string").
 //		Compile(ctx)
 //
-//	env1, _ := r.InstantiateModule(ctx, compiled, wazero.NewModuleConfig().WithName("env.1"))
-//	env2, _ := r.InstantiateModule(ctx, compiled, wazero.NewModuleConfig().WithName("env.2"))
+//	env1, _ := r.InstantiateModule(ctx, compiled, gowasm.NewModuleConfig().WithName("env.1"))
+//	env2, _ := r.InstantiateModule(ctx, compiled, gowasm.NewModuleConfig().WithName("env.2"))
 //
 // See HostFunctionBuilder for valid host function signatures and other details.
 //
 // # Notes
 //
 //   - This is an interface for decoupling, not third-party implementations.
-//     All implementations are in wazero.
+//     All implementations are in gowasm.
 //   - HostModuleBuilder is mutable: each method returns the same instance for
 //     chaining.
 //   - methods do not return errors, to allow chaining. Any validation errors
@@ -197,7 +197,7 @@ type HostModuleBuilder interface {
 	// Here's an example:
 	//
 	//	ctx := context.Background()
-	//	r := wazero.NewRuntime(ctx)
+	//	r := gowasm.NewRuntime(ctx)
 	//	defer r.Close(ctx) // This closes everything this Runtime created.
 	//
 	//	hello := func() {

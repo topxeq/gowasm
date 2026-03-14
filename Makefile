@@ -43,13 +43,13 @@ build.examples.tinygo_reactor: $(tinygo_sources_reactor)
 	    tinygo build -o $$(echo $$f | sed -e 's/\.go/\.wasm/') -scheduler=none --no-debug --target=wasip1 -buildmode=c-shared $$f; \
 	done
 
-tinygo_sources_clis := examples/cli/testdata/cli.go imports/wasi_snapshot_preview1/example/testdata/tinygo/cat.go imports/wasi_snapshot_preview1/testdata/tinygo/wasi.go cmd/wazero/testdata/cat/cat.go
+tinygo_sources_clis := examples/cli/testdata/cli.go imports/wasi_snapshot_preview1/example/testdata/tinygo/cat.go imports/wasi_snapshot_preview1/testdata/tinygo/wasi.go cmd/gowasm/testdata/cat/cat.go
 .PHONY: build.examples.tinygo_clis
 build.examples.tinygo_clis: $(tinygo_sources_clis)
 	@for f in $^; do \
 	    tinygo build -o $$(echo $$f | sed -e 's/\.go/\.wasm/') -scheduler=none --no-debug --target=wasip1 $$f; \
 	done
-	@mv cmd/wazero/testdata/cat/cat.wasm cmd/wazero/testdata/cat/cat-tinygo.wasm
+	@mv cmd/gowasm/testdata/cat/cat.wasm cmd/gowasm/testdata/cat/cat-tinygo.wasm
 
 .PHONY: build.examples.tinygo
 build.examples.tinygo: build.examples.tinygo_reactor build.examples.tinygo_clis
@@ -207,7 +207,7 @@ build.spectest.tail_call:
 test:
 	@go test $(go_test_options) ./...
 	@cd internal/version/testdata && go test $(go_test_options) ./...
-	@cd internal/integration_test/fuzz/wazerolib && CGO_ENABLED=0 WASM_BINARY_PATH=testdata/test.wasm go test ./...
+	@cd internal/integration_test/fuzz/gowasmlib && CGO_ENABLED=0 WASM_BINARY_PATH=testdata/test.wasm go test ./...
 
 .PHONY: coverage
 # replace spaces with commas
@@ -300,22 +300,22 @@ libsodium:
 
 VERSION ?= dev
 non_windows_platforms := darwin_amd64 darwin_arm64 linux_amd64 linux_arm64
-non_windows_archives  := $(non_windows_platforms:%=dist/wazero_$(VERSION)_%.tar.gz)
+non_windows_archives  := $(non_windows_platforms:%=dist/gowasm_$(VERSION)_%.tar.gz)
 windows_platforms     := windows_amd64 # TODO: add arm64 windows once we start testing on it.
-windows_archives      := $(windows_platforms:%=dist/wazero_$(VERSION)_%.zip)
-checksum_txt          := dist/wazero_$(VERSION)_checksums.txt
+windows_archives      := $(windows_platforms:%=dist/gowasm_$(VERSION)_%.zip)
+checksum_txt          := dist/gowasm_$(VERSION)_checksums.txt
 
 # define macros for multi-platform builds. these parse the filename being built
 go-arch = $(if $(findstring amd64,$1),amd64,arm64)
 go-os   = $(if $(findstring .exe,$1),windows,$(if $(findstring linux,$1),linux,darwin))
 
-build/wazero_%/wazero:
+build/gowasm_%/gowasm:
 	$(call go-build,$@,$<)
 
-build/wazero_%/wazero.exe:
+build/gowasm_%/gowasm.exe:
 	$(call go-build,$@,$<)
 
-dist/wazero_$(VERSION)_%.tar.gz: build/wazero_%/wazero
+dist/gowasm_$(VERSION)_%.tar.gz: build/gowasm_%/gowasm
 	@echo tar.gz "tarring $@"
 	@mkdir -p $(@D)
 # On Windows, we pass the special flag `--mode='+rx' to ensure that we set the executable flag.
@@ -327,12 +327,12 @@ define go-build
 	@echo "building $1"
 	@# $(go:go=) removes the trailing 'go', so we can insert cross-build variables
 	@$(go:go=) CGO_ENABLED=0 GOOS=$(call go-os,$1) GOARCH=$(call go-arch,$1) go build \
-		-ldflags "-s -w -X github.com/tetratelabs/wazero/internal/version.version=$(VERSION)" \
-		-o $1 $2 ./cmd/wazero
+		-ldflags "-s -w -X github.com/tetratelabs/gowasm/internal/version.version=$(VERSION)" \
+		-o $1 $2 ./cmd/gowasm
 	@echo build "ok"
 endef
 
-dist/wazero_$(VERSION)_%.zip: build/wazero_%/wazero.exe
+dist/gowasm_$(VERSION)_%.zip: build/gowasm_%/gowasm.exe
 	@echo zip "zipping $@"
 	@mkdir -p $(@D)
 	@zip -qj $@ $<

@@ -4,9 +4,9 @@ This example shows how to pass strings in and out of a Wasm function defined in
 Zig, built with `zig build`.
 
 ```bash
-$ go run greet.go wazero
-wasm >> Hello, wazero!
-go >> Hello, wazero!
+$ go run greet.go gowasm
+wasm >> Hello, gowasm!
+go >> Hello, gowasm!
 ```
 
 [greet.zig](testdata/greet.zig) does a few things of interest:

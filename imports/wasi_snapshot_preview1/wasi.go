@@ -7,7 +7,7 @@
 // "wasi_snapshot_preview1", Otherwise, it will error due to missing imports.
 //
 //	ctx := context.Background()
-//	r := wazero.NewRuntime(ctx)
+//	r := gowasm.NewRuntime(ctx)
 //	defer r.Close(ctx) // This closes everything this Runtime created.
 //
 //	wasi_snapshot_preview1.MustInstantiate(ctx, r)
@@ -20,11 +20,11 @@ import (
 	"context"
 	"encoding/binary"
 
-	"github.com/tetratelabs/wazero"
-	"github.com/tetratelabs/wazero/api"
-	"github.com/tetratelabs/wazero/experimental/sys"
-	"github.com/tetratelabs/wazero/internal/wasip1"
-	"github.com/tetratelabs/wazero/internal/wasm"
+	"github.com/topxeq/gowasm"
+	"github.com/topxeq/gowasm/api"
+	"github.com/topxeq/gowasm/experimental/sys"
+	"github.com/topxeq/gowasm/internal/wasip1"
+	"github.com/topxeq/gowasm/internal/wasm"
 )
 
 // ModuleName is the module name WASI functions are exported into.
@@ -40,7 +40,7 @@ var le = binary.LittleEndian
 //
 // This is a simpler function for those who know the module ModuleName is not
 // already instantiated, and don't need to unload it.
-func MustInstantiate(ctx context.Context, r wazero.Runtime) {
+func MustInstantiate(ctx context.Context, r gowasm.Runtime) {
 	if _, err := Instantiate(ctx, r); err != nil {
 		panic(err)
 	}
@@ -50,9 +50,9 @@ func MustInstantiate(ctx context.Context, r wazero.Runtime) {
 //
 // # Notes
 //
-//   - Failure cases are documented on wazero.Runtime InstantiateModule.
-//   - Closing the wazero.Runtime has the same effect as closing the result.
-func Instantiate(ctx context.Context, r wazero.Runtime) (api.Closer, error) {
+//   - Failure cases are documented on gowasm.Runtime InstantiateModule.
+//   - Closing the gowasm.Runtime has the same effect as closing the result.
+func Instantiate(ctx context.Context, r gowasm.Runtime) (api.Closer, error) {
 	return NewBuilder(r).Instantiate(ctx)
 }
 
@@ -61,35 +61,35 @@ func Instantiate(ctx context.Context, r wazero.Runtime) (api.Closer, error) {
 // # Notes
 //
 //   - This is an interface for decoupling, not third-party implementations.
-//     All implementations are in wazero.
+//     All implementations are in gowasm.
 type Builder interface {
 	// Compile compiles the ModuleName module. Call this before Instantiate.
 	//
-	// Note: This has the same effect as the same function on wazero.HostModuleBuilder.
-	Compile(context.Context) (wazero.CompiledModule, error)
+	// Note: This has the same effect as the same function on gowasm.HostModuleBuilder.
+	Compile(context.Context) (gowasm.CompiledModule, error)
 
 	// Instantiate instantiates the ModuleName module and returns a function to close it.
 	//
-	// Note: This has the same effect as the same function on wazero.HostModuleBuilder.
+	// Note: This has the same effect as the same function on gowasm.HostModuleBuilder.
 	Instantiate(context.Context) (api.Closer, error)
 }
 
 // NewBuilder returns a new Builder.
-func NewBuilder(r wazero.Runtime) Builder {
+func NewBuilder(r gowasm.Runtime) Builder {
 	return &builder{r}
 }
 
-type builder struct{ r wazero.Runtime }
+type builder struct{ r gowasm.Runtime }
 
-// hostModuleBuilder returns a new wazero.HostModuleBuilder for ModuleName
-func (b *builder) hostModuleBuilder() wazero.HostModuleBuilder {
+// hostModuleBuilder returns a new gowasm.HostModuleBuilder for ModuleName
+func (b *builder) hostModuleBuilder() gowasm.HostModuleBuilder {
 	ret := b.r.NewHostModuleBuilder(ModuleName)
 	exportFunctions(ret)
 	return ret
 }
 
 // Compile implements Builder.Compile
-func (b *builder) Compile(ctx context.Context) (wazero.CompiledModule, error) {
+func (b *builder) Compile(ctx context.Context) (gowasm.CompiledModule, error) {
 	return b.hostModuleBuilder().Compile(ctx)
 }
 
@@ -98,14 +98,14 @@ func (b *builder) Instantiate(ctx context.Context) (api.Closer, error) {
 	return b.hostModuleBuilder().Instantiate(ctx)
 }
 
-// FunctionExporter exports functions into a wazero.HostModuleBuilder.
+// FunctionExporter exports functions into a gowasm.HostModuleBuilder.
 //
 // # Notes
 //
 //   - This is an interface for decoupling, not third-party implementations.
-//     All implementations are in wazero.
+//     All implementations are in gowasm.
 type FunctionExporter interface {
-	ExportFunctions(wazero.HostModuleBuilder)
+	ExportFunctions(gowasm.HostModuleBuilder)
 }
 
 // NewFunctionExporter returns a new FunctionExporter. This is used for the
@@ -139,7 +139,7 @@ func NewFunctionExporter() FunctionExporter {
 type functionExporter struct{}
 
 // ExportFunctions implements FunctionExporter.ExportFunctions
-func (functionExporter) ExportFunctions(builder wazero.HostModuleBuilder) {
+func (functionExporter) ExportFunctions(builder gowasm.HostModuleBuilder) {
 	exportFunctions(builder)
 }
 
@@ -172,7 +172,7 @@ func (functionExporter) ExportFunctions(builder wazero.HostModuleBuilder) {
 
 // exportFunctions adds all go functions that implement wasi.
 // These should be exported in the module named ModuleName.
-func exportFunctions(builder wazero.HostModuleBuilder) {
+func exportFunctions(builder gowasm.HostModuleBuilder) {
 	exporter := builder.(wasm.HostFuncExporter)
 
 	// Note: these are ordered per spec for consistency even if the resulting

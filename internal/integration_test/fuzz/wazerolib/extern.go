@@ -8,12 +8,12 @@ import (
 	"strings"
 	"unsafe"
 
-	"github.com/tetratelabs/wazero"
-	"github.com/tetratelabs/wazero/api"
-	"github.com/tetratelabs/wazero/experimental"
-	"github.com/tetratelabs/wazero/internal/testing/binaryencoding"
-	"github.com/tetratelabs/wazero/internal/testing/nodiff"
-	"github.com/tetratelabs/wazero/internal/wasm"
+	"github.com/topxeq/gowasm"
+	"github.com/topxeq/gowasm/api"
+	"github.com/topxeq/gowasm/experimental"
+	"github.com/topxeq/gowasm/internal/testing/binaryencoding"
+	"github.com/topxeq/gowasm/internal/testing/nodiff"
+	"github.com/topxeq/gowasm/internal/wasm"
 )
 
 func main() {}
@@ -117,9 +117,9 @@ func test_signal_stack() {
 		},
 	})
 	ctx := context.Background()
-	config := wazero.NewRuntimeConfigCompiler().WithCoreFeatures(api.CoreFeaturesV2 | experimental.CoreFeaturesTailCall)
+	config := gowasm.NewRuntimeConfigCompiler().WithCoreFeatures(api.CoreFeaturesV2 | experimental.CoreFeaturesTailCall)
 
-	r := wazero.NewRuntimeWithConfig(ctx, config)
+	r := gowasm.NewRuntimeWithConfig(ctx, config)
 	module, err := r.Instantiate(ctx, bin)
 	if err != nil {
 		panic(err)

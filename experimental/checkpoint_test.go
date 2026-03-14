@@ -4,16 +4,16 @@ import (
 	"context"
 	"testing"
 
-	"github.com/tetratelabs/wazero"
-	"github.com/tetratelabs/wazero/api"
-	"github.com/tetratelabs/wazero/experimental"
-	"github.com/tetratelabs/wazero/internal/testing/require"
+	"github.com/topxeq/gowasm"
+	"github.com/topxeq/gowasm/api"
+	"github.com/topxeq/gowasm/experimental"
+	"github.com/topxeq/gowasm/internal/testing/require"
 )
 
 func TestSnapshotNestedWasmInvocation(t *testing.T) {
 	ctx := context.Background()
 
-	rt := wazero.NewRuntime(ctx)
+	rt := gowasm.NewRuntime(ctx)
 	defer rt.Close(ctx)
 
 	sidechannel := 0
@@ -69,7 +69,7 @@ func TestSnapshotNestedWasmInvocation(t *testing.T) {
 func TestSnapshotMultipleWasmInvocations(t *testing.T) {
 	ctx := context.Background()
 
-	rt := wazero.NewRuntime(ctx)
+	rt := gowasm.NewRuntime(ctx)
 	defer rt.Close(ctx)
 
 	_, err := rt.NewHostModuleBuilder("example").

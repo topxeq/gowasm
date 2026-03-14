@@ -7,13 +7,13 @@ import (
 	"testing"
 	"time"
 
-	"github.com/tetratelabs/wazero"
-	"github.com/tetratelabs/wazero/api"
-	experimentalsock "github.com/tetratelabs/wazero/experimental/sock"
-	"github.com/tetratelabs/wazero/internal/sys"
-	"github.com/tetratelabs/wazero/internal/testing/require"
-	"github.com/tetratelabs/wazero/internal/wasip1"
-	"github.com/tetratelabs/wazero/internal/wasm"
+	"github.com/topxeq/gowasm"
+	"github.com/topxeq/gowasm/api"
+	experimentalsock "github.com/topxeq/gowasm/experimental/sock"
+	"github.com/topxeq/gowasm/internal/sys"
+	"github.com/topxeq/gowasm/internal/testing/require"
+	"github.com/topxeq/gowasm/internal/wasip1"
+	"github.com/topxeq/gowasm/internal/wasm"
 )
 
 func Test_sockAccept(t *testing.T) {
@@ -47,7 +47,7 @@ func Test_sockAccept(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			ctx := experimentalsock.WithConfig(testCtx, experimentalsock.NewConfig().WithTCPListener("127.0.0.1", 0))
 
-			mod, r, log := requireProxyModuleWithContext(ctx, t, wazero.NewModuleConfig())
+			mod, r, log := requireProxyModuleWithContext(ctx, t, gowasm.NewModuleConfig())
 			defer r.Close(testCtx)
 
 			// Dial the socket so that a call to accept doesn't hang.
@@ -100,7 +100,7 @@ func Test_sockShutdown(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			ctx := experimentalsock.WithConfig(testCtx, experimentalsock.NewConfig().WithTCPListener("127.0.0.1", 0))
 
-			mod, r, log := requireProxyModuleWithContext(ctx, t, wazero.NewModuleConfig())
+			mod, r, log := requireProxyModuleWithContext(ctx, t, gowasm.NewModuleConfig())
 			defer r.Close(testCtx)
 
 			// Dial the socket so that a call to accept doesn't hang.
@@ -150,7 +150,7 @@ func Test_sockRecv(t *testing.T) {
 				'?',      // iovs[2].offset is after this
 				'r', 'o', // iovs[2].length bytes
 				'?',        // resultNread is after this
-				6, 0, 0, 0, // sum(iovs[...].length) == length of "wazero"
+				6, 0, 0, 0, // sum(iovs[...].length) == length of "gowasm"
 				0, 0, // flags
 				'?',
 			},
@@ -181,7 +181,7 @@ func Test_sockRecv(t *testing.T) {
 				'?',      // iovs[2].offset is after this
 				'r', 'o', // iovs[2].length bytes
 				'?',        // resultNread is after this
-				6, 0, 0, 0, // sum(iovs[...].length) == length of "wazero"
+				6, 0, 0, 0, // sum(iovs[...].length) == length of "gowasm"
 				0, 0, // flags
 				'?',
 			},
@@ -239,7 +239,7 @@ func Test_sockRecv(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			ctx := experimentalsock.WithConfig(testCtx, experimentalsock.NewConfig().WithTCPListener("127.0.0.1", 0))
 
-			mod, r, log := requireProxyModuleWithContext(ctx, t, wazero.NewModuleConfig())
+			mod, r, log := requireProxyModuleWithContext(ctx, t, gowasm.NewModuleConfig())
 			defer r.Close(testCtx)
 
 			// Dial the socket so that a call to accept doesn't hang.
@@ -254,7 +254,7 @@ func Test_sockRecv(t *testing.T) {
 
 			// End of setup. Perform the test.
 
-			write, err := tcp.Write([]byte("wazero"))
+			write, err := tcp.Write([]byte("gowasm"))
 			require.NoError(t, err)
 			require.NotEqual(t, 0, write)
 
@@ -309,7 +309,7 @@ func Test_sockSend(t *testing.T) {
 				'?',
 			},
 			expectedMemory: []byte{
-				6, 0, 0, 0, // sum(iovs[...].length) == length of "wazero"
+				6, 0, 0, 0, // sum(iovs[...].length) == length of "gowasm"
 				'?',
 			},
 
@@ -326,7 +326,7 @@ func Test_sockSend(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			ctx := experimentalsock.WithConfig(testCtx, experimentalsock.NewConfig().WithTCPListener("127.0.0.1", 0))
 
-			mod, r, log := requireProxyModuleWithContext(ctx, t, wazero.NewModuleConfig())
+			mod, r, log := requireProxyModuleWithContext(ctx, t, gowasm.NewModuleConfig())
 			defer r.Close(testCtx)
 
 			// Dial the socket so that a call to accept doesn't hang.
@@ -361,8 +361,8 @@ func Test_sockSend(t *testing.T) {
 			read, err := tcp.Read(buf)
 			require.NoError(t, err)
 			require.NotEqual(t, 0, read)
-			// Sometimes `buf` is smaller than len("wazero").
-			require.True(t, strings.HasPrefix("wazero", string(buf[:read])))
+			// Sometimes `buf` is smaller than len("gowasm").
+			require.True(t, strings.HasPrefix("gowasm", string(buf[:read])))
 		})
 	}
 }

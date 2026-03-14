@@ -4,9 +4,9 @@ import (
 	"context"
 	"testing"
 
-	"github.com/tetratelabs/wazero/experimental/sock"
-	internalsock "github.com/tetratelabs/wazero/internal/sock"
-	"github.com/tetratelabs/wazero/internal/testing/require"
+	"github.com/topxeq/gowasm/experimental/sock"
+	internalsock "github.com/topxeq/gowasm/internal/sock"
+	"github.com/topxeq/gowasm/internal/testing/require"
 )
 
 type arbitrary struct{}

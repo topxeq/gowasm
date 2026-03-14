@@ -3,7 +3,7 @@ package amd64
 import (
 	"fmt"
 
-	"github.com/tetratelabs/wazero/internal/engine/wazevo/backend/regalloc"
+	"github.com/topxeq/gowasm/internal/engine/wazevo/backend/regalloc"
 )
 
 // Amd64-specific registers.

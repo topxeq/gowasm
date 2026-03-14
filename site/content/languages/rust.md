@@ -11,9 +11,9 @@ architecture-specific binaries through three targets:
 * `wasm32-unknown-unknown`: for standalone use in or outside the browser.
 * `wasm32-wasi`: for use outside the browser.
 
-This document is maintained by wazero, which is a WebAssembly runtime that
+This document is maintained by gowasm, which is a WebAssembly runtime that
 embeds in Go applications. Hence, our notes focus on targets used outside the
-browser, tested by wazero: `wasm32-unknown-unknown` and `wasm32-wasi`.
+browser, tested by gowasm: `wasm32-unknown-unknown` and `wasm32-wasi`.
 
 This document also focuses on `rustc` as opposed to `cargo`, for precision and
 brevity.
@@ -58,7 +58,7 @@ compiles the source as a library, e.g. without a `main` function.
 
 ## Disclaimer
 
-This document includes notes contributed by the wazero community. While wazero
+This document includes notes contributed by the gowasm community. While gowasm
 includes Rust examples, the community is less familiar with Rust. For more
 help, consider the [Rust and WebAssembly book][5].
 
@@ -109,7 +109,7 @@ memory offset (`ptr`). At that point, it can call a host function, ex
 from Rust) will be able to read the data. To ensure no memory leaks, the host
 calls a free function, with the same `ptr`, afterwards and unconditionally.
 
-Note: wazero includes an [example project][9] that shows this.
+Note: gowasm includes an [example project][9] that shows this.
 
 To allow the host to allocate memory, you need to define your own `malloc` and
 `free` functions:
@@ -167,7 +167,7 @@ fn main() {
 }
 ```
 
-Note: wazero includes an [example WASI project][10] including [source code][11]
+Note: gowasm includes an [example WASI project][10] including [source code][11]
 that implements `cat` without any WebAssembly-specific code.
 
 ## Concurrency
@@ -218,12 +218,12 @@ source code may reduce binary size further.
 [1]: https://www.rust-lang.org/tools/install
 [4]: https://docs.rust-embedded.org/book/interoperability/rust-with-c.html#no_mangle
 [5]: https://rustwasm.github.io/docs/book
-[6]: https://github.com/tetratelabs/wazero/tree/main/site/content/languages/rust.md
-[7]: https://github.com/tetratelabs/wazero/stargazers
+[6]: https://github.com/tetratelabs/gowasm/tree/main/site/content/languages/rust.md
+[7]: https://github.com/tetratelabs/gowasm/stargazers
 [8]: https://rustwasm.github.io/docs/book/reference/which-crates-work-with-wasm.html
-[9]: https://github.com/tetratelabs/wazero/tree/main/examples/allocation/rust
-[10]: https://github.com/tetratelabs/wazero/tree/main/imports/wasi_snapshot_preview1/example
-[11]: https://github.com/tetratelabs/wazero/tree/main/imports/wasi_snapshot_preview1/example/testdata/cargo-wasi
+[9]: https://github.com/tetratelabs/gowasm/tree/main/examples/allocation/rust
+[10]: https://github.com/tetratelabs/gowasm/tree/main/imports/wasi_snapshot_preview1/example
+[11]: https://github.com/tetratelabs/gowasm/tree/main/imports/wasi_snapshot_preview1/example/testdata/cargo-wasi
 [12]: https://github.com/rustwasm/wee_alloc
 [13]: https://doc.rust-lang.org/cargo/reference/profiles.html#profile-settings
 [14]: https://github.com/bytecodealliance/cargo-wasi

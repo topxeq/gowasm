@@ -12,16 +12,16 @@ import (
 	"testing/iotest"
 	"unicode/utf16"
 
-	"github.com/tetratelabs/wazero"
-	"github.com/tetratelabs/wazero/api"
-	. "github.com/tetratelabs/wazero/experimental"
-	"github.com/tetratelabs/wazero/experimental/logging"
-	"github.com/tetratelabs/wazero/experimental/wazerotest"
-	. "github.com/tetratelabs/wazero/internal/assemblyscript"
-	"github.com/tetratelabs/wazero/internal/testing/proxy"
-	"github.com/tetratelabs/wazero/internal/testing/require"
-	"github.com/tetratelabs/wazero/internal/u64"
-	"github.com/tetratelabs/wazero/sys"
+	"github.com/topxeq/gowasm"
+	"github.com/topxeq/gowasm/api"
+	. "github.com/topxeq/gowasm/experimental"
+	"github.com/topxeq/gowasm/experimental/logging"
+	"github.com/topxeq/gowasm/experimental/wazerotest"
+	. "github.com/topxeq/gowasm/internal/assemblyscript"
+	"github.com/topxeq/gowasm/internal/testing/proxy"
+	"github.com/topxeq/gowasm/internal/testing/require"
+	"github.com/topxeq/gowasm/internal/u64"
+	"github.com/topxeq/gowasm/sys"
 )
 
 type arbitrary struct{}
@@ -52,7 +52,7 @@ func TestAbort(t *testing.T) {
 
 		t.Run(tc.name, func(t *testing.T) {
 			var stderr bytes.Buffer
-			mod, r, log := requireProxyModule(t, tc.exporter, wazero.NewModuleConfig().WithStderr(&stderr), logging.LogScopeProc)
+			mod, r, log := requireProxyModule(t, tc.exporter, gowasm.NewModuleConfig().WithStderr(&stderr), logging.LogScopeProc)
 			defer r.Close(testCtx)
 
 			messageOff, filenameOff := writeAbortMessageAndFileName(t, mod.Memory(), encodeUTF16("message"), encodeUTF16("filename"))
@@ -102,7 +102,7 @@ func TestAbort_Error(t *testing.T) {
 
 		t.Run(tc.name, func(t *testing.T) {
 			var stderr bytes.Buffer
-			mod, r, log := requireProxyModule(t, NewFunctionExporter(), wazero.NewModuleConfig().WithStderr(&stderr), logging.LogScopeAll)
+			mod, r, log := requireProxyModule(t, NewFunctionExporter(), gowasm.NewModuleConfig().WithStderr(&stderr), logging.LogScopeAll)
 			defer r.Close(testCtx)
 
 			messageOff, filenameOff := writeAbortMessageAndFileName(t, mod.Memory(), tc.messageUTF16, tc.fileNameUTF16)
@@ -145,7 +145,7 @@ func TestSeed(t *testing.T) {
 		tc := tt
 
 		t.Run(tc.name, func(t *testing.T) {
-			mod, r, log := requireProxyModule(t, NewFunctionExporter(), wazero.NewModuleConfig(), tc.scopes)
+			mod, r, log := requireProxyModule(t, NewFunctionExporter(), gowasm.NewModuleConfig(), tc.scopes)
 			defer r.Close(testCtx)
 
 			ret, err := mod.ExportedFunction(SeedName).Call(testCtx)
@@ -166,7 +166,7 @@ func TestSeed_error(t *testing.T) {
 		{
 			name:   "not 8 bytes",
 			source: bytes.NewReader([]byte{0, 1}),
-			expectedErr: `error reading random seed: unexpected EOF (recovered by wazero)
+			expectedErr: `error reading random seed: unexpected EOF (recovered by gowasm)
 wasm stack trace:
 	env.~lib/builtins/seed() f64
 	internal/testing/proxy/proxy.go.seed() f64`,
@@ -174,7 +174,7 @@ wasm stack trace:
 		{
 			name:   "error reading",
 			source: iotest.ErrReader(errors.New("ice cream")),
-			expectedErr: `error reading random seed: ice cream (recovered by wazero)
+			expectedErr: `error reading random seed: ice cream (recovered by gowasm)
 wasm stack trace:
 	env.~lib/builtins/seed() f64
 	internal/testing/proxy/proxy.go.seed() f64`,
@@ -185,7 +185,7 @@ wasm stack trace:
 		tc := tt
 
 		t.Run(tc.name, func(t *testing.T) {
-			mod, r, log := requireProxyModule(t, NewFunctionExporter(), wazero.NewModuleConfig().WithRandSource(tc.source), logging.LogScopeAll)
+			mod, r, log := requireProxyModule(t, NewFunctionExporter(), gowasm.NewModuleConfig().WithRandSource(tc.source), logging.LogScopeAll)
 			defer r.Close(testCtx)
 
 			_, err := mod.ExportedFunction(SeedName).Call(testCtx)
@@ -294,7 +294,7 @@ func TestFunctionExporter_Trace(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			var out bytes.Buffer
 
-			config := wazero.NewModuleConfig()
+			config := gowasm.NewModuleConfig()
 			if strings.Contains("ToStderr", tc.name) {
 				config = config.WithStderr(&out)
 			} else {
@@ -424,14 +424,14 @@ func (w *errWriter) Write([]byte) (int, error) {
 	return 0, w.err
 }
 
-func requireProxyModule(t *testing.T, fns FunctionExporter, config wazero.ModuleConfig, scopes logging.LogScopes) (api.Module, api.Closer, *bytes.Buffer) {
+func requireProxyModule(t *testing.T, fns FunctionExporter, config gowasm.ModuleConfig, scopes logging.LogScopes) (api.Module, api.Closer, *bytes.Buffer) {
 	var log bytes.Buffer
 
 	// Set context to one that has an experimental listener
 	ctx := WithFunctionListenerFactory(testCtx,
 		proxy.NewLoggingListenerFactory(&log, scopes))
 
-	r := wazero.NewRuntime(ctx)
+	r := gowasm.NewRuntime(ctx)
 
 	builder := r.NewHostModuleBuilder("env")
 	fns.ExportFunctions(builder)

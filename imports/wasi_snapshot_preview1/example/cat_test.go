@@ -9,8 +9,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/tetratelabs/wazero/internal/testing/maintester"
-	"github.com/tetratelabs/wazero/internal/testing/require"
+	"github.com/topxeq/gowasm/internal/testing/maintester"
+	"github.com/topxeq/gowasm/internal/testing/require"
 )
 
 // Test_main ensures the following will work:
@@ -30,7 +30,7 @@ func Test_main(t *testing.T) {
 
 // Test_cli ensures the following will work:
 //
-// go run github.com/tetratelabs/wazero/cmd/wazero run -mount=testdata:/ cat.wasm /test.txt
+// go run github.com/topxeq/gowasm/cmd/gowasm run -mount=testdata:/ cat.wasm /test.txt
 func Test_cli(t *testing.T) {
 	tests := []struct {
 		toolchain string
@@ -76,7 +76,7 @@ func Test_cli(t *testing.T) {
 					// We can't invoke go run in our docker based cross-architecture tests. We do want to use
 					// otherwise so running unit tests normally does not require special build steps.
 					cmdExe := "go"
-					cmdArgs := []string{"run", "../../../cmd/wazero"}
+					cmdArgs := []string{"run", "../../../cmd/gowasm"}
 					if cmdPath := os.Getenv("WAZEROCLI"); cmdPath != "" {
 						cmdExe = cmdPath
 						cmdArgs = nil

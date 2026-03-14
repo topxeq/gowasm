@@ -11,10 +11,10 @@ import (
 	"time"
 	"unsafe"
 
-	"github.com/tetratelabs/wazero/api"
-	"github.com/tetratelabs/wazero/experimental"
-	"github.com/tetratelabs/wazero/internal/internalapi"
-	"github.com/tetratelabs/wazero/internal/wasmruntime"
+	"github.com/topxeq/gowasm/api"
+	"github.com/topxeq/gowasm/experimental"
+	"github.com/topxeq/gowasm/internal/internalapi"
+	"github.com/topxeq/gowasm/internal/wasmruntime"
 )
 
 const (
@@ -82,7 +82,7 @@ func NewMemoryInstance(memSec *Memory, allocator experimental.MemoryAllocator, m
 		// Shared memory needs a fixed buffer, so allocate with the maximum size.
 		//
 		// The rationale as to why we can simply use make([]byte) to a fixed buffer is that Go's GC is non-relocating.
-		// That is not a part of Go spec, but is well-known thing in Go community (wazero's compiler heavily relies on it!)
+		// That is not a part of Go spec, but is well-known thing in Go community (gowasm's compiler heavily relies on it!)
 		// 	* https://github.com/go4org/unsafe-assume-no-moving-gc
 		//
 		// Also, allocating Max here isn't harmful as the Go runtime uses mmap for large allocations, therefore,
@@ -262,7 +262,7 @@ func (m *MemoryInstance) Grow(delta uint32) (result uint32, ok bool) {
 		}
 	} else if newPages > m.Cap { // grow the memory.
 		if m.Shared {
-			panic("shared memory cannot be grown, this is a bug in wazero")
+			panic("shared memory cannot be grown, this is a bug in gowasm")
 		}
 		m.Buffer = append(m.Buffer, make([]byte, MemoryPagesToBytesNum(delta))...)
 		m.Cap = newPages

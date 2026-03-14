@@ -4,13 +4,13 @@ import (
 	"context"
 	"testing"
 
-	"github.com/tetratelabs/wazero"
-	"github.com/tetratelabs/wazero/api"
-	"github.com/tetratelabs/wazero/experimental"
-	"github.com/tetratelabs/wazero/internal/engine/wazevo/testcases"
-	"github.com/tetratelabs/wazero/internal/testing/binaryencoding"
-	"github.com/tetratelabs/wazero/internal/testing/require"
-	"github.com/tetratelabs/wazero/internal/wasm"
+	"github.com/topxeq/gowasm"
+	"github.com/topxeq/gowasm/api"
+	"github.com/topxeq/gowasm/experimental"
+	"github.com/topxeq/gowasm/internal/engine/wazevo/testcases"
+	"github.com/topxeq/gowasm/internal/testing/binaryencoding"
+	"github.com/topxeq/gowasm/internal/testing/require"
+	"github.com/topxeq/gowasm/internal/wasm"
 )
 
 // TestE2E_tail_call_import implements a test case similar to testcases.TailCallManyParams,
@@ -21,16 +21,16 @@ func TestE2E_tail_call_import(t *testing.T) {
 
 	for _, tc := range []struct {
 		name string
-		cfg  wazero.RuntimeConfig
+		cfg  gowasm.RuntimeConfig
 	}{
-		{"interpreter", wazero.NewRuntimeConfigInterpreter()},
-		{"default", wazero.NewRuntimeConfig()},
+		{"interpreter", gowasm.NewRuntimeConfigInterpreter()},
+		{"default", gowasm.NewRuntimeConfig()},
 	} {
 
 		config := tc.cfg.WithCoreFeatures(api.CoreFeaturesV2 | experimental.CoreFeaturesTailCall)
 
 		t.Run(tc.name, func(t *testing.T) {
-			r := wazero.NewRuntimeWithConfig(ctx, config)
+			r := gowasm.NewRuntimeWithConfig(ctx, config)
 			defer func() {
 				require.NoError(t, r.Close(ctx))
 			}()
@@ -104,7 +104,7 @@ func TestE2E_tail_call_import(t *testing.T) {
 			compiled, err := r.CompileModule(ctx, binaryencoding.EncodeModule(m))
 			require.NoError(t, err)
 
-			inst, err := r.InstantiateModule(ctx, compiled, wazero.NewModuleConfig())
+			inst, err := r.InstantiateModule(ctx, compiled, gowasm.NewModuleConfig())
 			require.NoError(t, err)
 
 			expectedMod = inst
@@ -128,16 +128,16 @@ func TestE2E_tail_call_import_indirect(t *testing.T) {
 
 	for _, tc := range []struct {
 		name string
-		cfg  wazero.RuntimeConfig
+		cfg  gowasm.RuntimeConfig
 	}{
-		{"interpreter", wazero.NewRuntimeConfigInterpreter()},
-		{"default", wazero.NewRuntimeConfig()},
+		{"interpreter", gowasm.NewRuntimeConfigInterpreter()},
+		{"default", gowasm.NewRuntimeConfig()},
 	} {
 
 		config := tc.cfg.WithCoreFeatures(api.CoreFeaturesV2 | experimental.CoreFeaturesTailCall)
 
 		t.Run(tc.name, func(t *testing.T) {
-			r := wazero.NewRuntimeWithConfig(ctx, config)
+			r := gowasm.NewRuntimeWithConfig(ctx, config)
 			defer func() {
 				require.NoError(t, r.Close(ctx))
 			}()
@@ -224,7 +224,7 @@ func TestE2E_tail_call_import_indirect(t *testing.T) {
 			compiled, err := r.CompileModule(ctx, binaryencoding.EncodeModule(m))
 			require.NoError(t, err)
 
-			inst, err := r.InstantiateModule(ctx, compiled, wazero.NewModuleConfig())
+			inst, err := r.InstantiateModule(ctx, compiled, gowasm.NewModuleConfig())
 			require.NoError(t, err)
 
 			expectedMod = inst

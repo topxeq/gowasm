@@ -14,25 +14,25 @@ import (
 	"time"
 	"unsafe"
 
-	"github.com/tetratelabs/wazero"
-	"github.com/tetratelabs/wazero/api"
-	"github.com/tetratelabs/wazero/experimental"
-	"github.com/tetratelabs/wazero/experimental/logging"
-	"github.com/tetratelabs/wazero/experimental/table"
-	"github.com/tetratelabs/wazero/internal/leb128"
-	"github.com/tetratelabs/wazero/internal/platform"
-	"github.com/tetratelabs/wazero/internal/testing/binaryencoding"
-	"github.com/tetratelabs/wazero/internal/testing/proxy"
-	"github.com/tetratelabs/wazero/internal/testing/require"
-	"github.com/tetratelabs/wazero/internal/wasm"
-	"github.com/tetratelabs/wazero/internal/wasm/binary"
-	"github.com/tetratelabs/wazero/internal/wasmdebug"
-	"github.com/tetratelabs/wazero/internal/wasmruntime"
-	"github.com/tetratelabs/wazero/sys"
+	"github.com/topxeq/gowasm"
+	"github.com/topxeq/gowasm/api"
+	"github.com/topxeq/gowasm/experimental"
+	"github.com/topxeq/gowasm/experimental/logging"
+	"github.com/topxeq/gowasm/experimental/table"
+	"github.com/topxeq/gowasm/internal/leb128"
+	"github.com/topxeq/gowasm/internal/platform"
+	"github.com/topxeq/gowasm/internal/testing/binaryencoding"
+	"github.com/topxeq/gowasm/internal/testing/proxy"
+	"github.com/topxeq/gowasm/internal/testing/require"
+	"github.com/topxeq/gowasm/internal/wasm"
+	"github.com/topxeq/gowasm/internal/wasm/binary"
+	"github.com/topxeq/gowasm/internal/wasmdebug"
+	"github.com/topxeq/gowasm/internal/wasmruntime"
+	"github.com/topxeq/gowasm/sys"
 )
 
 type testCase struct {
-	f func(t *testing.T, r wazero.Runtime)
+	f func(t *testing.T, r gowasm.Runtime)
 }
 
 var tests = map[string]testCase{
@@ -81,11 +81,11 @@ func TestEngineCompiler(t *testing.T) {
 	if !platform.CompilerSupported() {
 		t.Skip()
 	}
-	runAllTests(t, tests, wazero.NewRuntimeConfigCompiler().WithCloseOnContextDone(true), false)
+	runAllTests(t, tests, gowasm.NewRuntimeConfigCompiler().WithCloseOnContextDone(true), false)
 }
 
 func TestEngineInterpreter(t *testing.T) {
-	runAllTests(t, tests, wazero.NewRuntimeConfigInterpreter().WithCloseOnContextDone(true), false)
+	runAllTests(t, tests, gowasm.NewRuntimeConfigInterpreter().WithCloseOnContextDone(true), false)
 }
 
 type arbitrary struct{}
@@ -97,13 +97,13 @@ const i32, i64, f32, f64, v128 = wasm.ValueTypeI32, wasm.ValueTypeI64, wasm.Valu
 
 var memoryCapacityPages = uint32(2)
 
-func runAllTests(t *testing.T, tests map[string]testCase, config wazero.RuntimeConfig, isWazevo bool) {
+func runAllTests(t *testing.T, tests map[string]testCase, config gowasm.RuntimeConfig, isWazevo bool) {
 	for name, tc := range tests {
 		name := name
 		tc := tc
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
-			tc.f(t, wazero.NewRuntimeWithConfig(testCtx, config))
+			tc.f(t, gowasm.NewRuntimeWithConfig(testCtx, config))
 		})
 	}
 }
@@ -131,13 +131,13 @@ var (
 	hugeCallStackUnwind []byte
 )
 
-func testEnsureTerminationOnClose(t *testing.T, r wazero.Runtime) {
+func testEnsureTerminationOnClose(t *testing.T, r gowasm.Runtime) {
 	compiled, err := r.CompileModule(context.Background(), infiniteLoopWasm)
 	require.NoError(t, err)
 
 	newInfiniteLoopFn := func(t *testing.T) (m api.Module, infinite api.Function) {
 		var err error
-		m, err = r.InstantiateModule(context.Background(), compiled, wazero.NewModuleConfig().WithName(t.Name()))
+		m, err = r.InstantiateModule(context.Background(), compiled, gowasm.NewModuleConfig().WithName(t.Name()))
 		require.NoError(t, err)
 		infinite = m.ExportedFunction("infinite_loop")
 		require.NotNil(t, infinite)
@@ -186,7 +186,7 @@ func testEnsureTerminationOnClose(t *testing.T, r wazero.Runtime) {
 	})
 }
 
-func testUserDefinedPrimitiveHostFunc(t *testing.T, r wazero.Runtime) {
+func testUserDefinedPrimitiveHostFunc(t *testing.T, r gowasm.Runtime) {
 	type u32 uint32
 	type u64 uint64
 	type f32 float32
@@ -199,7 +199,7 @@ func testUserDefinedPrimitiveHostFunc(t *testing.T, r wazero.Runtime) {
 		}).Export(fn).Compile(testCtx)
 	require.NoError(t, err)
 
-	_, err = r.InstantiateModule(testCtx, hostCompiled, wazero.NewModuleConfig())
+	_, err = r.InstantiateModule(testCtx, hostCompiled, gowasm.NewModuleConfig())
 	require.NoError(t, err)
 
 	proxyBin := proxy.NewModuleBinary("host", hostCompiled)
@@ -216,7 +216,7 @@ func testUserDefinedPrimitiveHostFunc(t *testing.T, r wazero.Runtime) {
 	require.Equal(t, res[0], uint64(u1)+uint64(u2)+uint64(math.Float32bits(f1))+math.Float64bits(f2))
 }
 
-func testReftypeImports(t *testing.T, r wazero.Runtime) {
+func testReftypeImports(t *testing.T, r gowasm.Runtime) {
 	type dog struct {
 		name string
 	}
@@ -248,7 +248,7 @@ func testReftypeImports(t *testing.T, r wazero.Runtime) {
 	require.Equal(t, uintptr(unsafe.Pointer(hostObj)), uintptr(actual[0]))
 }
 
-func testHugeStack(t *testing.T, r wazero.Runtime) {
+func testHugeStack(t *testing.T, r gowasm.Runtime) {
 	module, err := r.Instantiate(testCtx, hugestackWasm)
 	require.NoError(t, err)
 	defer func() {
@@ -288,7 +288,7 @@ func testHugeStack(t *testing.T, r wazero.Runtime) {
 
 // testOverflow ensures that adding one into the maximum integer results in the
 // minimum one. See #636.
-func testOverflow(t *testing.T, r wazero.Runtime) {
+func testOverflow(t *testing.T, r gowasm.Runtime) {
 	module, err := r.Instantiate(testCtx, overflowWasm)
 	require.NoError(t, err)
 	defer func() {
@@ -307,7 +307,7 @@ func testOverflow(t *testing.T, r wazero.Runtime) {
 }
 
 // testGlobalExtend ensures that un-signed extension of i32 globals must be zero extended. See #656.
-func testGlobalExtend(t *testing.T, r wazero.Runtime) {
+func testGlobalExtend(t *testing.T, r gowasm.Runtime) {
 	module, err := r.Instantiate(testCtx, globalExtendWasm)
 	require.NoError(t, err)
 	defer func() {
@@ -323,7 +323,7 @@ func testGlobalExtend(t *testing.T, r wazero.Runtime) {
 	require.Equal(t, uint64(0xffff_ffff), res[0])
 }
 
-func testUnreachable(t *testing.T, r wazero.Runtime) {
+func testUnreachable(t *testing.T, r gowasm.Runtime) {
 	callUnreachable := func() {
 		panic("panic in host function")
 	}
@@ -340,7 +340,7 @@ func testUnreachable(t *testing.T, r wazero.Runtime) {
 	}()
 
 	_, err = module.ExportedFunction("main").Call(testCtx)
-	exp := `panic in host function (recovered by wazero)
+	exp := `panic in host function (recovered by gowasm)
 wasm stack trace:
 	host.cause_unreachable()
 	.two()
@@ -349,7 +349,7 @@ wasm stack trace:
 	require.Equal(t, exp, err.Error())
 }
 
-func testRecursiveEntry(t *testing.T, r wazero.Runtime) {
+func testRecursiveEntry(t *testing.T, r gowasm.Runtime) {
 	hostfunc := func(ctx context.Context, mod api.Module) {
 		_, err := mod.ExportedFunction("called_by_host_func").Call(testCtx)
 		require.NoError(t, err)
@@ -371,7 +371,7 @@ func testRecursiveEntry(t *testing.T, r wazero.Runtime) {
 }
 
 // testHostFuncMemory ensures that host functions can see the callers' memory
-func testHostFuncMemory(t *testing.T, r wazero.Runtime) {
+func testHostFuncMemory(t *testing.T, r gowasm.Runtime) {
 	var memory *wasm.MemoryInstance
 	storeInt := func(ctx context.Context, m api.Module, offset uint32, val uint64) uint32 {
 		if !m.Memory().WriteUint64Le(offset, val) {
@@ -407,7 +407,7 @@ func testHostFuncMemory(t *testing.T, r wazero.Runtime) {
 }
 
 // testNestedGoContext ensures context is updated when a function calls another.
-func testNestedGoContext(t *testing.T, r wazero.Runtime) {
+func testNestedGoContext(t *testing.T, r gowasm.Runtime) {
 	type arbitrary struct{}
 	nestedCtx := context.WithValue(context.Background(), arbitrary{}, "arbitrary")
 
@@ -452,7 +452,7 @@ func testNestedGoContext(t *testing.T, r wazero.Runtime) {
 }
 
 // testHostFunctionContextParameter ensures arg0 is optionally a context.
-func testHostFunctionContextParameter(t *testing.T, r wazero.Runtime) {
+func testHostFunctionContextParameter(t *testing.T, r gowasm.Runtime) {
 	importedName := t.Name() + "-imported"
 	importingName := t.Name() + "-importing"
 
@@ -494,7 +494,7 @@ func testHostFunctionContextParameter(t *testing.T, r wazero.Runtime) {
 }
 
 // testHostFunctionNumericParameter ensures numeric parameters aren't corrupted
-func testHostFunctionNumericParameter(t *testing.T, r wazero.Runtime) {
+func testHostFunctionNumericParameter(t *testing.T, r gowasm.Runtime) {
 	importedName := t.Name() + "-imported"
 	importingName := t.Name() + "-importing"
 
@@ -594,7 +594,7 @@ func testHostFunctionNumericParameter(t *testing.T, r wazero.Runtime) {
 	}
 }
 
-func callHostFunctionIndirect(t *testing.T, r wazero.Runtime) {
+func callHostFunctionIndirect(t *testing.T, r gowasm.Runtime) {
 	// With the following call graph,
 	//  originWasmModule -- call --> importingWasmModule -- call --> hostModule
 	// this ensures that hostModule's hostFn only has access importingWasmModule, not originWasmModule.
@@ -717,7 +717,7 @@ func callOuterInnerWasm(t *testing.T, importedModule, importingModule string) []
 	return binaryencoding.EncodeModule(module)
 }
 
-func testCloseInFlight(t *testing.T, r wazero.Runtime) {
+func testCloseInFlight(t *testing.T, r gowasm.Runtime) {
 	tests := []struct {
 		name, function                        string
 		closeImporting, closeImported         uint32
@@ -761,7 +761,7 @@ func testCloseInFlight(t *testing.T, r wazero.Runtime) {
 		tc := tt
 
 		t.Run(tc.name, func(t *testing.T) {
-			var importingCode, importedCode wazero.CompiledModule
+			var importingCode, importedCode gowasm.CompiledModule
 			var imported, importing api.Module
 			var err error
 			closeAndReturn := func(ctx context.Context, x uint32) uint32 {
@@ -788,7 +788,7 @@ func testCloseInFlight(t *testing.T, r wazero.Runtime) {
 				Compile(testCtx)
 			require.NoError(t, err)
 
-			imported, err = r.InstantiateModule(testCtx, importedCode, wazero.NewModuleConfig())
+			imported, err = r.InstantiateModule(testCtx, importedCode, gowasm.NewModuleConfig())
 			require.NoError(t, err)
 			defer func() {
 				require.NoError(t, imported.Close(testCtx))
@@ -799,7 +799,7 @@ func testCloseInFlight(t *testing.T, r wazero.Runtime) {
 			importingCode, err = r.CompileModule(testCtx, bin)
 			require.NoError(t, err)
 
-			importing, err = r.InstantiateModule(testCtx, importingCode, wazero.NewModuleConfig())
+			importing, err = r.InstantiateModule(testCtx, importingCode, gowasm.NewModuleConfig())
 			require.NoError(t, err)
 			defer func() {
 				require.NoError(t, importing.Close(testCtx))
@@ -824,7 +824,7 @@ func testCloseInFlight(t *testing.T, r wazero.Runtime) {
 	}
 }
 
-func testMemOps(t *testing.T, r wazero.Runtime) {
+func testMemOps(t *testing.T, r gowasm.Runtime) {
 	// Instantiate a module that manages its memory
 	mod, err := r.Instantiate(testCtx, memoryWasm)
 	require.NoError(t, err)
@@ -878,7 +878,7 @@ func testMemOps(t *testing.T, r wazero.Runtime) {
 	require.NoError(t, err)
 }
 
-func testMultipleInstantiation(t *testing.T, r wazero.Runtime) {
+func testMultipleInstantiation(t *testing.T, r gowasm.Runtime) {
 	bin := binaryencoding.EncodeModule(&wasm.Module{
 		TypeSection:     []wasm.FunctionType{{}},
 		FunctionSection: []wasm.Index{0},
@@ -901,7 +901,7 @@ func testMultipleInstantiation(t *testing.T, r wazero.Runtime) {
 
 	// Instantiate multiple modules with the same source (*CompiledModule).
 	for i := 0; i < 100; i++ {
-		module, err := r.InstantiateModule(testCtx, compiled, wazero.NewModuleConfig().WithName(strconv.Itoa(i)))
+		module, err := r.InstantiateModule(testCtx, compiled, gowasm.NewModuleConfig().WithName(strconv.Itoa(i)))
 		require.NoError(t, err)
 
 		// Ensure that compilation cache doesn't cause race on memory instance.
@@ -925,7 +925,7 @@ func testMultipleInstantiation(t *testing.T, r wazero.Runtime) {
 	}
 }
 
-func testLookupFunction(t *testing.T, r wazero.Runtime) {
+func testLookupFunction(t *testing.T, r gowasm.Runtime) {
 	bin := binaryencoding.EncodeModule(&wasm.Module{
 		TypeSection:     []wasm.FunctionType{{Results: []wasm.ValueType{i32}}},
 		FunctionSection: []wasm.Index{0, 0, 0},
@@ -983,7 +983,7 @@ func testLookupFunction(t *testing.T, r wazero.Runtime) {
 	})
 }
 
-func testMemoryGrowInRecursiveCall(t *testing.T, r wazero.Runtime) {
+func testMemoryGrowInRecursiveCall(t *testing.T, r gowasm.Runtime) {
 	const hostModuleName = "env"
 	const hostFnName = "grow_memory"
 	var growFn api.Function
@@ -995,7 +995,7 @@ func testMemoryGrowInRecursiveCall(t *testing.T, r wazero.Runtime) {
 		}).Export(hostFnName).Compile(testCtx)
 	require.NoError(t, err)
 
-	_, err = r.InstantiateModule(testCtx, hostCompiled, wazero.NewModuleConfig())
+	_, err = r.InstantiateModule(testCtx, hostCompiled, gowasm.NewModuleConfig())
 	require.NoError(t, err)
 
 	bin := binaryencoding.EncodeModule(&wasm.Module{
@@ -1040,7 +1040,7 @@ func testMemoryGrowInRecursiveCall(t *testing.T, r wazero.Runtime) {
 	require.NoError(t, err)
 }
 
-func testCall(t *testing.T, r wazero.Runtime) {
+func testCall(t *testing.T, r gowasm.Runtime) {
 	// Define a basic function which defines two parameters and two results.
 	// This is used to test results when incorrect arity is used.
 	bin := binaryencoding.EncodeModule(&wasm.Module{
@@ -1096,7 +1096,7 @@ func testCall(t *testing.T, r wazero.Runtime) {
 // Known cases that change the slice capacity:
 // * Host code calls append on a byte slice returned by api.Memory Read
 // * Wasm code calls wasm.OpcodeMemoryGrowName and this changes the capacity (by default, it will).
-func testModuleMemory(t *testing.T, r wazero.Runtime) {
+func testModuleMemory(t *testing.T, r gowasm.Runtime) {
 	wasmPhrase := "Well, that'll be the day when you say goodbye."
 	wasmPhraseSize := uint32(len(wasmPhrase))
 
@@ -1195,7 +1195,7 @@ func testModuleMemory(t *testing.T, r wazero.Runtime) {
 	require.Equal(t, hostPhraseTruncated, string(buf2))
 }
 
-func testTwoIndirection(t *testing.T, r wazero.Runtime) {
+func testTwoIndirection(t *testing.T, r gowasm.Runtime) {
 	var buf bytes.Buffer
 	ctx := experimental.WithFunctionListenerFactory(testCtx, logging.NewLoggingListenerFactory(&buf))
 	_, err := r.NewHostModuleBuilder("host").NewFunctionBuilder().WithFunc(func(
@@ -1264,17 +1264,17 @@ func testTwoIndirection(t *testing.T, r wazero.Runtime) {
 			input  uint64
 			expErr string
 		}{
-			{name: "host panic", input: math.MaxUint32, expErr: `host-function panic (recovered by wazero)
+			{name: "host panic", input: math.MaxUint32, expErr: `host-function panic (recovered by gowasm)
 wasm stack trace:
 	host.div(i32) i32
 	host_importer.call_host_div(i32) i32
 	main.main(i32) i32`},
-			{name: "go runtime panic", input: 0, expErr: `runtime error: integer divide by zero (recovered by wazero)
+			{name: "go runtime panic", input: 0, expErr: `runtime error: integer divide by zero (recovered by gowasm)
 wasm stack trace:
 	host.div(i32) i32
 	host_importer.call_host_div(i32) i32
 	main.main(i32) i32`},
-			{name: "module closed and then go runtime panic", input: math.MaxUint32 - 1, expErr: `host-function panic (recovered by wazero)
+			{name: "module closed and then go runtime panic", input: math.MaxUint32 - 1, expErr: `host-function panic (recovered by gowasm)
 wasm stack trace:
 	host.div(i32) i32
 	host_importer.call_host_div(i32) i32
@@ -1323,7 +1323,7 @@ wasm stack trace:
 `, "\n"+buf.String())
 }
 
-func testBeforeListenerGlobals(t *testing.T, r wazero.Runtime) {
+func testBeforeListenerGlobals(t *testing.T, r gowasm.Runtime) {
 	type globals struct {
 		values []uint64
 		types  []api.ValueType
@@ -1395,7 +1395,7 @@ func testBeforeListenerGlobals(t *testing.T, r wazero.Runtime) {
 
 // testBeforeListenerStackIterator tests that the StackIterator provided by the Engine to the Before hook
 // of the listener is properly able to walk the stack.
-func testBeforeListenerStackIterator(t *testing.T, r wazero.Runtime) {
+func testBeforeListenerStackIterator(t *testing.T, r gowasm.Runtime) {
 	type stackEntry struct {
 		debugName string
 	}
@@ -1519,7 +1519,7 @@ func testBeforeListenerStackIterator(t *testing.T, r wazero.Runtime) {
 	require.Equal(t, 0, len(expectedCallstacks))
 }
 
-func testListenerStackIteratorOffset(t *testing.T, r wazero.Runtime) {
+func testListenerStackIteratorOffset(t *testing.T, r gowasm.Runtime) {
 	type frame struct {
 		function api.FunctionDefinition
 		offset   uint64
@@ -1835,7 +1835,7 @@ func manyParamsResultsMod() (bin []byte, params []uint64) {
 	return
 }
 
-func testManyParamsResultsCallManyConsts(t *testing.T, r wazero.Runtime) {
+func testManyParamsResultsCallManyConsts(t *testing.T, r gowasm.Runtime) {
 	ctx := context.Background()
 
 	bin, _ := manyParamsResultsMod()
@@ -1869,7 +1869,7 @@ func testManyParamsResultsCallManyConsts(t *testing.T, r wazero.Runtime) {
 	require.Equal(t, exp, results)
 }
 
-func testManyParamsResultsCallManyConstsListener(t *testing.T, r wazero.Runtime) {
+func testManyParamsResultsCallManyConstsListener(t *testing.T, r gowasm.Runtime) {
 	var buf bytes.Buffer
 	ctx := experimental.WithFunctionListenerFactory(context.Background(), logging.NewLoggingListenerFactory(&buf))
 
@@ -1910,7 +1910,7 @@ func testManyParamsResultsCallManyConstsListener(t *testing.T, r wazero.Runtime)
 	require.Equal(t, exp, results)
 }
 
-func testManyParamsResultsDoubler(t *testing.T, r wazero.Runtime) {
+func testManyParamsResultsDoubler(t *testing.T, r gowasm.Runtime) {
 	ctx := context.Background()
 
 	bin, params := manyParamsResultsMod()
@@ -1938,7 +1938,7 @@ func testManyParamsResultsDoubler(t *testing.T, r wazero.Runtime) {
 	require.Equal(t, exp, results)
 }
 
-func testManyParamsResultsDoublerListener(t *testing.T, r wazero.Runtime) {
+func testManyParamsResultsDoublerListener(t *testing.T, r gowasm.Runtime) {
 	var buf bytes.Buffer
 	ctx := experimental.WithFunctionListenerFactory(context.Background(), logging.NewLoggingListenerFactory(&buf))
 
@@ -1972,7 +1972,7 @@ func testManyParamsResultsDoublerListener(t *testing.T, r wazero.Runtime) {
 	require.Equal(t, exp, results)
 }
 
-func testManyParamsResultsSwapper(t *testing.T, r wazero.Runtime) {
+func testManyParamsResultsSwapper(t *testing.T, r gowasm.Runtime) {
 	ctx := context.Background()
 
 	bin, params := manyParamsResultsMod()
@@ -1998,7 +1998,7 @@ func testManyParamsResultsSwapper(t *testing.T, r wazero.Runtime) {
 	require.Equal(t, exp, results)
 }
 
-func testManyParamsResultsSwapperListener(t *testing.T, r wazero.Runtime) {
+func testManyParamsResultsSwapperListener(t *testing.T, r gowasm.Runtime) {
 	var buf bytes.Buffer
 	ctx := experimental.WithFunctionListenerFactory(context.Background(), logging.NewLoggingListenerFactory(&buf))
 
@@ -2030,7 +2030,7 @@ func testManyParamsResultsSwapperListener(t *testing.T, r wazero.Runtime) {
 	require.Equal(t, exp, results)
 }
 
-func testManyParamsResultsMain(t *testing.T, r wazero.Runtime) {
+func testManyParamsResultsMain(t *testing.T, r gowasm.Runtime) {
 	ctx := context.Background()
 
 	bin, params := manyParamsResultsMod()
@@ -2053,7 +2053,7 @@ func testManyParamsResultsMain(t *testing.T, r wazero.Runtime) {
 	require.Equal(t, exp, results)
 }
 
-func testManyParamsResultsMainListener(t *testing.T, r wazero.Runtime) {
+func testManyParamsResultsMainListener(t *testing.T, r gowasm.Runtime) {
 	var buf bytes.Buffer
 	ctx := experimental.WithFunctionListenerFactory(context.Background(), logging.NewLoggingListenerFactory(&buf))
 
@@ -2086,7 +2086,7 @@ func testManyParamsResultsMainListener(t *testing.T, r wazero.Runtime) {
 	require.Equal(t, exp, results)
 }
 
-func testManyParamsResultsCallManyConstsAndPickLastVector(t *testing.T, r wazero.Runtime) {
+func testManyParamsResultsCallManyConstsAndPickLastVector(t *testing.T, r gowasm.Runtime) {
 	ctx := context.Background()
 
 	bin, _ := manyParamsResultsMod()
@@ -2102,7 +2102,7 @@ func testManyParamsResultsCallManyConstsAndPickLastVector(t *testing.T, r wazero
 	require.Equal(t, exp, results)
 }
 
-func testManyParamsResultsCallManyConstsAndPickLastVectorListener(t *testing.T, r wazero.Runtime) {
+func testManyParamsResultsCallManyConstsAndPickLastVectorListener(t *testing.T, r gowasm.Runtime) {
 	var buf bytes.Buffer
 	ctx := experimental.WithFunctionListenerFactory(context.Background(), logging.NewLoggingListenerFactory(&buf))
 
@@ -2128,7 +2128,7 @@ func testManyParamsResultsCallManyConstsAndPickLastVectorListener(t *testing.T, 
 `, "\n"+buf.String())
 }
 
-func testImportedMutableGlobalUpdate(t *testing.T, r wazero.Runtime) {
+func testImportedMutableGlobalUpdate(t *testing.T, r gowasm.Runtime) {
 	importedBin := binaryencoding.EncodeModule(&wasm.Module{
 		ExportSection: []wasm.Export{
 			{Name: "g", Type: wasm.ExternTypeGlobal, Index: 0},
@@ -2192,7 +2192,7 @@ func testImportedMutableGlobalUpdate(t *testing.T, r wazero.Runtime) {
 	require.Equal(t, uint64(2), v)
 }
 
-func testHugeCallStackUnwind(t *testing.T, r wazero.Runtime) {
+func testHugeCallStackUnwind(t *testing.T, r gowasm.Runtime) {
 	ctx := context.Background()
 	_, err := r.Instantiate(ctx, hugeCallStackUnwind)
 	require.Error(t, err)
@@ -2235,7 +2235,7 @@ wasm stack trace:
 // is the initial owner of the table is closed and then try to call call_indirect on the table.
 //
 // This is in practice extremely edge case and shouldn't occur in real world, but in any way, seg fault should not occur.
-func testCloseTableExportingModule(t *testing.T, r wazero.Runtime) {
+func testCloseTableExportingModule(t *testing.T, r gowasm.Runtime) {
 	exportingBin := binaryencoding.EncodeModule(&wasm.Module{
 		ExportSection: []wasm.Export{
 			{Name: "t", Type: wasm.ExternTypeTable, Index: 0},
@@ -2323,7 +2323,7 @@ func testCloseTableExportingModule(t *testing.T, r wazero.Runtime) {
 // that is the initial owner of the table will call call_indirect on the table.
 //
 // This is in practice extremely edge case and shouldn't occur in real world, but in any way, seg fault should not occur.
-func testCloseTableImportingModule(t *testing.T, r wazero.Runtime) {
+func testCloseTableImportingModule(t *testing.T, r gowasm.Runtime) {
 	exportingBin := binaryencoding.EncodeModule(&wasm.Module{
 		ExportSection: []wasm.Export{
 			{Name: "t", Type: wasm.ExternTypeTable, Index: 0},
@@ -2406,10 +2406,10 @@ func testCloseTableImportingModule(t *testing.T, r wazero.Runtime) {
 	}
 }
 
-func instantiateClose(t *testing.T, r wazero.Runtime, ctx context.Context, bin []byte) {
+func instantiateClose(t *testing.T, r gowasm.Runtime, ctx context.Context, bin []byte) {
 	compiled, err := r.CompileModule(ctx, bin)
 	require.NoError(t, err)
-	m, err := r.InstantiateModule(ctx, compiled, wazero.NewModuleConfig())
+	m, err := r.InstantiateModule(ctx, compiled, gowasm.NewModuleConfig())
 	require.NoError(t, err)
 	err = m.Close(ctx)
 	require.NoError(t, err)
@@ -2418,7 +2418,7 @@ func instantiateClose(t *testing.T, r wazero.Runtime, ctx context.Context, bin [
 }
 
 // testHugeBinary is supposed to do e2e on huge relocation in arm64.
-func testHugeBinary(t *testing.T, r wazero.Runtime) {
+func testHugeBinary(t *testing.T, r gowasm.Runtime) {
 	if testing.Short() {
 		t.Skip("skipping testHugeBinary in short mode since it takes a long time")
 	}

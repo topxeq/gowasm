@@ -7,12 +7,12 @@ import (
 	"sync"
 	"sync/atomic"
 
-	"github.com/tetratelabs/wazero/api"
-	"github.com/tetratelabs/wazero/experimental"
-	"github.com/tetratelabs/wazero/internal/expctxkeys"
-	"github.com/tetratelabs/wazero/internal/internalapi"
-	internalsys "github.com/tetratelabs/wazero/internal/sys"
-	"github.com/tetratelabs/wazero/sys"
+	"github.com/topxeq/gowasm/api"
+	"github.com/topxeq/gowasm/experimental"
+	"github.com/topxeq/gowasm/internal/expctxkeys"
+	"github.com/topxeq/gowasm/internal/internalapi"
+	internalsys "github.com/topxeq/gowasm/internal/sys"
+	"github.com/topxeq/gowasm/sys"
 )
 
 // nameToModuleShrinkThreshold is the size the nameToModule map can grow to
@@ -63,7 +63,7 @@ type (
 	}
 
 	// ModuleInstance represents instantiated wasm module.
-	// The difference from the spec is that in wazero, a ModuleInstance holds pointers
+	// The difference from the spec is that in gowasm, a ModuleInstance holds pointers
 	// to the instances, rather than "addresses" (i.e. index to Store.Functions, Globals, etc) for convenience.
 	//
 	// See https://www.w3.org/TR/2019/REC-wasm-core-1-20191205/#syntax-moduleinst
@@ -150,12 +150,12 @@ type (
 	}
 
 	// FunctionTypeID is a uniquely assigned integer for a function type.
-	// This is wazero specific runtime object and specific to a store,
+	// This is gowasm specific runtime object and specific to a store,
 	// and used at runtime to do type-checks on indirect function calls.
 	FunctionTypeID uint32
 )
 
-// The wazero specific limitations described at RATIONALE.md.
+// The gowasm specific limitations described at RATIONALE.md.
 const maximumFunctionTypes = 1 << 27
 
 // GetFunctionTypeID is used by emscripten.
@@ -205,7 +205,7 @@ func (m *ModuleInstance) applyElements(elems []ElementSegment) {
 			// this must be raised as runtime error (as in assert_trap in spectest), not even an instantiation error.
 			// https://github.com/WebAssembly/spec/blob/d39195773112a22b245ffbe864bab6d1182ccb06/test/core/linking.wast#L264-L274
 			//
-			// In wazero, we ignore it since in any way, the instantiated module and engines are fine and can be used
+			// In gowasm, we ignore it since in any way, the instantiated module and engines are fine and can be used
 			// for function invocations.
 			return
 		}
@@ -612,7 +612,7 @@ func (s *Store) GetFunctionTypeID(t *FunctionType) (FunctionTypeID, error) {
 	return id, nil
 }
 
-// CloseWithExitCode implements the same method as documented on wazero.Runtime.
+// CloseWithExitCode implements the same method as documented on gowasm.Runtime.
 func (s *Store) CloseWithExitCode(ctx context.Context, exitCode uint32) error {
 	s.mux.Lock()
 	defer s.mux.Unlock()

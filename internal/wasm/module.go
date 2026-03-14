@@ -10,9 +10,9 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/tetratelabs/wazero/api"
-	"github.com/tetratelabs/wazero/experimental"
-	"github.com/tetratelabs/wazero/internal/wasmdebug"
+	"github.com/topxeq/gowasm/api"
+	"github.com/topxeq/gowasm/experimental"
+	"github.com/topxeq/gowasm/internal/wasmdebug"
 )
 
 // Module is a WebAssembly binary representation.
@@ -144,7 +144,7 @@ type Module struct {
 	// NameSection is set when the SectionIDCustom "name" was successfully decoded from the binary format.
 	//
 	// Note: This is the only SectionIDCustom defined in the WebAssembly 1.0 (20191205) Binary Format.
-	// Others are skipped as they are not used in wazero.
+	// Others are skipped as they are not used in gowasm.
 	//
 	// See https://www.w3.org/TR/2019/REC-wasm-core-1-20191205/#name-section%E2%91%A0
 	// See https://www.w3.org/TR/2019/REC-wasm-core-1-20191205/#custom-section%E2%91%A0
@@ -172,10 +172,10 @@ type Module struct {
 	// functionDefinitionSectionInitOnce guards FunctionDefinitionSection so that it is initialized exactly once.
 	functionDefinitionSectionInitOnce sync.Once
 
-	// FunctionDefinitionSection is a wazero-specific section.
+	// FunctionDefinitionSection is a gowasm-specific section.
 	FunctionDefinitionSection []FunctionDefinition
 
-	// MemoryDefinitionSection is a wazero-specific section.
+	// MemoryDefinitionSection is a gowasm-specific section.
 	MemoryDefinitionSection []MemoryDefinition
 
 	// DWARFLines is used to emit DWARF based stack trace. This is created from the multiple custom sections
@@ -187,7 +187,7 @@ type Module struct {
 // ModuleID represents sha256 hash value uniquely assigned to Module.
 type ModuleID = [sha256.Size]byte
 
-// The wazero specific limitation described at RATIONALE.md.
+// The gowasm specific limitation described at RATIONALE.md.
 // TL;DR; We multiply by 8 (to get offsets in bytes) and the multiplication result must be less than 32bit max
 const (
 	MaximumGlobals       = uint32(1 << 27)
@@ -898,7 +898,7 @@ type NameSection struct {
 	// Note: This can be nil for any reason including configuration.
 	LocalNames IndirectNameMap
 
-	// ResultNames is a wazero-specific mechanism to store result names.
+	// ResultNames is a gowasm-specific mechanism to store result names.
 	ResultNames IndirectNameMap
 }
 

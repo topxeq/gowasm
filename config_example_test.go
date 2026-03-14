@@ -1,20 +1,20 @@
-package wazero_test
+package gowasm_test
 
 import (
 	"context"
 	_ "embed"
 	"log"
 
-	"github.com/tetratelabs/wazero"
-	"github.com/tetratelabs/wazero/api"
+	"github.com/topxeq/gowasm"
+	"github.com/topxeq/gowasm/api"
 )
 
 // This is a basic example of retrieving custom sections using RuntimeConfig.WithCustomSections.
 func Example_runtimeConfig_WithCustomSections() {
 	ctx := context.Background()
-	config := wazero.NewRuntimeConfig().WithCustomSections(true)
+	config := gowasm.NewRuntimeConfig().WithCustomSections(true)
 
-	r := wazero.NewRuntimeWithConfig(ctx, config)
+	r := gowasm.NewRuntimeWithConfig(ctx, config)
 	defer r.Close(ctx)
 
 	m, err := r.CompileModule(ctx, addWasm)

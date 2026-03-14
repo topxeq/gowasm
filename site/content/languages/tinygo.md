@@ -10,7 +10,7 @@ title = "TinyGo"
 * `wasm`: for browser (JavaScript) use.
 * `wasi`: for use outside the browser.
 
-This document is maintained by wazero, which is a WebAssembly runtime that
+This document is maintained by gowasm, which is a WebAssembly runtime that
 embeds in Go applications. Hence, all notes below will be about TinyGo's
 `wasi` target.
 
@@ -48,7 +48,7 @@ call it, regardless of if the host is written in Go or not.
 
 ## Disclaimer
 
-This document includes notes contributed by the wazero community. While wazero
+This document includes notes contributed by the gowasm community. While gowasm
 includes TinyGo examples, and maintainers often contribute to TinyGo, this
 isn't a TinyGo official document. For more help, consider the [TinyGo Using
 WebAssembly Guide][4] or joining the [#TinyGo channel on the Gophers Slack][5].
@@ -143,10 +143,10 @@ memory offset (`ptr`). At that point, it can call a host function, ex
 from Go) will be able to read the data. To ensure no memory leaks, the host
 calls a free function, with the same `ptr`, afterwards and unconditionally.
 
-Note: wazero includes an [example project][8] that shows this.
+Note: gowasm includes an [example project][8] that shows this.
 
 The general call patterns are the following. Host is the process embedding the
-WebAssembly runtime, such as wazero. Guest is the TinyGo source compiled to
+WebAssembly runtime, such as gowasm. Guest is the TinyGo source compiled to
 target wasi.
 
 * Host allocates a string to call an exported Guest function
@@ -207,7 +207,7 @@ func main() {
 }
 ```
 
-Note: wazero includes an [example WASI project][21] including [source code][22]
+Note: gowasm includes an [example WASI project][21] including [source code][22]
 that implements `cat` without any WebAssembly-specific code.
 
 ### WASI Internals
@@ -338,9 +338,9 @@ functions, such as `fmt.Println`, which can require 100KB of wasm.
 [1]: https://tinygo.org/
 [4]: https://tinygo.org/docs/guides/webassembly/
 [5]: https://github.com/tinygo-org/tinygo#getting-help
-[6]: https://github.com/tetratelabs/wazero/tree/main/site/content/languages/tinygo.md
-[7]: https://github.com/tetratelabs/wazero/stargazers
-[8]: https://github.com/tetratelabs/wazero/tree/main/examples/allocation/tinygo
+[6]: https://github.com/tetratelabs/gowasm/tree/main/site/content/languages/tinygo.md
+[7]: https://github.com/tetratelabs/gowasm/stargazers
+[8]: https://github.com/tetratelabs/gowasm/tree/main/examples/allocation/tinygo
 [9]: https://github.com/tetratelabs/tinymem
 [11]: https://github.com/tinygo-org/tinygo/blob/v0.25.0/targets/wasi.json
 [12]: https://github.com/WebAssembly/wasi-libc
@@ -352,8 +352,8 @@ functions, such as `fmt.Println`, which can require 100KB of wasm.
 [18]: https://github.com/tinygo-org/tinygo/issues/447
 [19]: https://github.com/tinygo-org/tinygo/issues/3068
 [20]: https://github.com/tinygo-org/tinygo/blob/v0.25.0/src/runtime/arch_tinygowasm.go#L47-L62
-[21]: https://github.com/tetratelabs/wazero/tree/main/imports/wasi_snapshot_preview1/example
-[22]: https://github.com/tetratelabs/wazero/tree/main/imports/wasi_snapshot_preview1/example/testdata/tinygo
+[21]: https://github.com/tetratelabs/gowasm/tree/main/imports/wasi_snapshot_preview1/example
+[22]: https://github.com/tetratelabs/gowasm/tree/main/imports/wasi_snapshot_preview1/example/testdata/tinygo
 [23]: https://github.com/WebAssembly/binaryen/blob/main/src/passes/Asyncify.cpp
 [24]: http://tleyden.github.io/blog/2014/10/30/goroutines-vs-threads/
 [25]: https://github.com/tinygo-org/tinygo/issues/3095

@@ -5,9 +5,9 @@ import (
 	"runtime"
 	"testing"
 
-	"github.com/tetratelabs/wazero/api"
-	"github.com/tetratelabs/wazero/internal/testing/require"
-	"github.com/tetratelabs/wazero/internal/wasmruntime"
+	"github.com/topxeq/gowasm/api"
+	"github.com/topxeq/gowasm/internal/testing/require"
+	"github.com/topxeq/gowasm/internal/wasmruntime"
 )
 
 func TestFuncName(t *testing.T) {
@@ -84,7 +84,7 @@ func TestErrorBuilder(t *testing.T) {
 				builder.AddFrame("x.y", nil, nil, nil)
 				return builder.FromRecovered(argErr)
 			},
-			expectedErr: `invalid argument (recovered by wazero)
+			expectedErr: `invalid argument (recovered by gowasm)
 wasm stack trace:
 	x.y()`,
 			expectUnwrap: argErr,
@@ -96,7 +96,7 @@ wasm stack trace:
 				builder.AddFrame("x.y", nil, nil, nil)
 				return builder.FromRecovered(argErr)
 			},
-			expectedErr: `invalid argument (recovered by wazero)
+			expectedErr: `invalid argument (recovered by gowasm)
 wasm stack trace:
 	wasi_snapshot_preview1.fd_write(i32,i32,i32,i32) i32
 	x.y()`,
@@ -138,7 +138,7 @@ func TestErrorBuilderGoRuntimeError(t *testing.T) {
 	require.Equal(t, rteErr, errors.Unwrap(withStackTrace))
 
 	errStr := withStackTrace.Error()
-	require.Contains(t, errStr, `index out of bounds (recovered by wazero)
+	require.Contains(t, errStr, `index out of bounds (recovered by gowasm)
 wasm stack trace:
 	wasi_snapshot_preview1.fd_write(i32,i32,i32,i32) i32
 	x.y()`)

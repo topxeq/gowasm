@@ -4,12 +4,12 @@ import (
 	"context"
 	"testing"
 
-	"github.com/tetratelabs/wazero"
-	"github.com/tetratelabs/wazero/api"
-	"github.com/tetratelabs/wazero/experimental/table"
-	"github.com/tetratelabs/wazero/internal/testing/binaryencoding"
-	"github.com/tetratelabs/wazero/internal/testing/require"
-	"github.com/tetratelabs/wazero/internal/wasm"
+	"github.com/topxeq/gowasm"
+	"github.com/topxeq/gowasm/api"
+	"github.com/topxeq/gowasm/experimental/table"
+	"github.com/topxeq/gowasm/internal/testing/binaryencoding"
+	"github.com/topxeq/gowasm/internal/testing/require"
+	"github.com/topxeq/gowasm/internal/wasm"
 )
 
 func TestLookupFunction(t *testing.T) {
@@ -45,7 +45,7 @@ func TestLookupFunction(t *testing.T) {
 		TableSection: []wasm.Table{{Type: wasm.RefTypeFuncref, Min: 100}},
 	})
 
-	r := wazero.NewRuntime(context.Background())
+	r := gowasm.NewRuntime(context.Background())
 	m, err := r.Instantiate(context.Background(), bytes)
 	require.NoError(t, err)
 	require.NotNil(t, m)
