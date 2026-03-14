@@ -1,6 +1,6 @@
 # gowasm: the zero dependency WebAssembly runtime for Go developers
 
-[![Go Reference](https://pkg.go.dev/badge/github.com/tetratelabs/gowasm.svg)](https://pkg.go.dev/github.com/tetratelabs/gowasm) [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![Go Reference](https://pkg.go.dev/badge/github.com/topxeq/gowasm.svg)](https://pkg.go.dev/github.com/topxeq/gowasm) [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 WebAssembly is a way to safely run code compiled in other languages. Runtimes
 execute WebAssembly Modules (Wasm), which are most often binaries with a `.wasm`
@@ -12,6 +12,73 @@ This means you can run applications in other languages and still keep cross
 compilation.
 
 Import gowasm and extend your Go application with code written in any language!
+
+## About This Repository
+
+This is a personal fork of [wazero](https://github.com/wazero/wazero), renamed to gowasm for use in my Go projects. The original Apache License 2.0 is preserved.
+
+## Quick Start
+
+### Installation
+
+```bash
+go get github.com/topxeq/gowasm@latest
+```
+
+### Simple Usage Example
+
+```go
+package main
+
+import (
+	"context"
+	"fmt"
+
+	"github.com/topxeq/gowasm"
+)
+
+// Simple WebAssembly module that exports an add function
+const simpleWasm = `(module
+  (func $add (param i32 i32) (result i32)
+    local.get 0
+    local.get 1
+    i32.add)
+  (export "add" (func $add))
+`
+
+func main() {
+	ctx := context.Background()
+
+	// Create runtime
+	r := gowasm.NewRuntime(ctx)
+	defer r.Close(ctx)
+
+	// Compile WebAssembly module
+	compiled, err := r.CompileModule(ctx, []byte(simpleWasm))
+	if err != nil {
+		panic(err)
+	}
+	defer compiled.Close(ctx)
+
+	// Instantiate module
+	mod, err := r.InstantiateModule(ctx, compiled, gowasm.NewModuleConfig())
+	if err != nil {
+		panic(err)
+	}
+	defer mod.Close(ctx)
+
+	// Get exported function
+	add := mod.ExportedFunction("add")
+
+	// Call function
+	results, err := add.Call(ctx, 2, 3)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("2 + 3 = %d\n", results[0])
+}
+```
 
 ## Example
 
@@ -69,7 +136,7 @@ or change internal details with a patch version, e.g. 1.0.0 to 1.0.1.
 
 You can get the latest version of gowasm like this.
 ```bash
-go get github.com/tetratelabs/gowasm@latest
+go get github.com/topxeq/gowasm@latest
 ```
 
 Please give us a [star][10] if you end up using gowasm!
