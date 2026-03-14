@@ -80,6 +80,56 @@ func main() {
 }
 ```
 
+### Loading an External .wasm File
+
+```go
+package main
+
+import (
+	"context"
+	"fmt"
+	"os"
+
+	"github.com/topxeq/gowasm"
+)
+
+func main() {
+	ctx := context.Background()
+
+	// Read the .wasm file
+	wasmBytes, err := os.ReadFile("module.wasm")
+	if err != nil {
+		panic(fmt.Sprintf("failed to read wasm file: %v", err))
+	}
+
+	// Create runtime
+	r := gowasm.NewRuntime(ctx)
+	defer r.Close(ctx)
+
+	// Compile WebAssembly module
+	compiled, err := r.CompileModule(ctx, wasmBytes)
+	if err != nil {
+		panic(fmt.Sprintf("failed to compile module: %v", err))
+	}
+	defer compiled.Close(ctx)
+
+	// Instantiate module
+	mod, err := r.InstantiateModule(ctx, compiled, gowasm.NewModuleConfig())
+	if err != nil {
+		panic(fmt.Sprintf("failed to instantiate module: %v", err))
+	}
+	defer mod.Close(ctx)
+
+	fmt.Println("Module loaded successfully!")
+
+	// List exported functions
+	fmt.Println("\nExported functions:")
+	for _, name := range mod.ExportedFunctionNames() {
+		fmt.Printf("  - %s\n", name)
+	}
+}
+```
+
 ## Example
 
 The best way to learn gowasm is by trying one of our [examples](examples/README.md). The
